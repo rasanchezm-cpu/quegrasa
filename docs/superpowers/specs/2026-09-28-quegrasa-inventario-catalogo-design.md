@@ -8,6 +8,8 @@
 
 **QueGrasa** es una tienda de ropa mediana-pequeña que operaba únicamente en línea y ahora también tiene tienda física. Su problema: el catálogo que ven los clientes en internet muestra prendas que ya se agotaron en la tienda, así que la gente pide por WhatsApp cosas que ya no existen.
 
+**Contexto monetario:** la tienda opera en Venezuela. Los precios se administran en **dólares (USD)** y se muestran también en **bolívares (Bs)** calculados con la tasa oficial BCV del día (actualización automática con respaldo manual).
+
 La solución es un sistema de dos caras, siempre sincronizados por una sola base de datos:
 
 1. **App de trabajadores** (web móvil con login): descuentan stock al vender, suben prendas nuevas con fotos, editan precios y ofertas.
@@ -80,7 +82,7 @@ Construcción **asistida por IA**: el desarrollo se hace dirigiendo a un agente 
 
 ## 4. Modelo de datos
 
-10 tablas. Léase como pseudoesquema de Prisma (los tipos exactos se definen al implementar).
+11 tablas. Léase como pseudoesquema de Prisma (los tipos exactos se definen al implementar).
 
 > **MVP de una sola tienda:** el catálogo público y las Server Actions operan sobre la primera `Store` activa (seed inicial: QueGrasa). El `storeId` está presente en el esquema para que la evolución a multi-tienda no requiera migraciones de datos, solo lógica de selección (subdominio → `Store`).
 
@@ -123,8 +125,8 @@ Se administran desde el panel (crear, renombrar, reordenar, desactivar). Nunca s
 | categoryId | |
 | name | incluye el color: "Playera negra oversize" (decisión: color va en el nombre, no en variantes) |
 | description? | |
-| price | Decimal |
-| salePrice? | si es distinto de null → es oferta visible |
+| price | Decimal, **en USD** ("piensa" en dólares, el Bs se calcula) |
+| salePrice? | Decimal en USD; si es distinto de null → es oferta visible |
 | isActive | publicada / retirada del catálogo |
 
 ### ProductImage
@@ -178,9 +180,19 @@ Todos los `WORKER` tienen los mismos permisos (decisión del cliente). `PLATFORM
 | Campo | Nota |
 |---|---|
 | id, subscriptionId, createdAt | |
-| amount | Decimal |
+| amount | Decimal (en USD) |
 | periodStart, periodEnd | mes cubierto |
 | registeredById | qué PLATFORM_ADMIN registró el pago |
+
+### ExchangeRate (tasa BCV) ⭐
+| Campo | Nota |
+|---|---|
+| id, createdAt | |
+| date | única por día |
+| rate | Decimal: Bs por 1 USD |
+| source | `BCV` \| `MANUAL` |
+
+Funcionamiento: un **Vercel Cron** diario consulta la tasa oficial (API pública de agregadores de tasa BCV; p. ej. `ve.dolarapi.com`) y guarda la del día. Si la fuente falla, el sistema usa la **última tasa guardada** y el panel `/platform` permite corregirla a mano (`source = MANUAL`). La tasa visible lleva su fecha ("tasa BCV 28-sep") para transparencia con los clientes.
 
 ---
 
@@ -189,7 +201,8 @@ Todos los `WORKER` tienen los mismos permisos (decisión del cliente). `PLATFORM
 ### 5.1 Catálogo público (sin login, móvil-first)
 
 **Home `/`**
-- Grid de prendas: foto, nombre, precio (tachado + precio de oferta con etiqueta "OFERTA" cuando aplica).
+- Grid de prendas: foto, nombre, **precio dual: `$15.00 · Bs 472,50`** (tachado + precio de oferta con etiqueta "OFERTA" cuando aplica).
+- Pie de página del catálogo: "Precios en Bs calculados a tasa BCV del 28-sep" — siempre visible para evitar malentendidos.
 - Barra de filtros (se reflejan en la URL para compartir/SEO):
   - Chips de categoría: *Todo, Parte de arriba, Parte de abajo, Chaquetas, Jeans...*
   - Chips de talla: **dinámicos** — solo se muestran las tallas presentes en los resultados actuales (filtras "Jeans" → ves 28/30/32/34; "Parte de arriba" → S/M/G/XL).
@@ -209,10 +222,12 @@ Todos los `WORKER` tienen los mismos permisos (decisión del cliente). `PLATFORM
 
 ```
 Hola QueGrasa! 👀 Me interesan estas prendas:
-1. Playera Negra Oversize — Talla M — $150
-2. Jeans Azul — Talla 32 — $320 (oferta, antes $400)
+1. Playera Negra Oversize — Talla M — $15 (Bs 472,50)
+2. Jeans Azul — Talla 32 — $20 (Bs 630,00) — oferta, antes $25
 ¿Siguen disponibles?
 ```
+
+*(Los Bs se calculan con la tasa vigente al armar el mensaje.)*
 
 ### 5.2 App de trabajadores `/admin` (login, móvil)
 
@@ -224,7 +239,7 @@ Hola QueGrasa! 👀 Me interesan estas prendas:
 |---|---|
 | 🛒 **Vendí** | Buscador por nombre → resultados con foto y tallas → tap en la talla vendida → confirmación ✓ instantánea. Permanece en "modo venta" para descontar varias prendas seguidas, mostrando lo descontado en la sesión. Cada pieza genera `StockMovement(SALE, -1)`. Si la talla llega a 0, el botón queda deshabilitado. |
 | 📦 **Inventario** | Lista agrupada por categoría con stock por talla. Editar con botones +/− (genera `RESTOCK`/`ADJUST`), buscar, marcar producto activo/inactivo, editar precio/oferta. |
-| ➕ **Subir prenda** | Fotos (cámara o galería, hasta 5, reordenables) → nombre → categoría → tallas (sugeridas según categoría, con opción de crear nuevas) + stock inicial c/u → precio → precio de oferta opcional → descripción → publicar. Aparece en el catálogo al instante. Genera `StockMovement(NEW)` por variante. |
+| ➕ **Subir prenda** | Fotos (cámara o galería, hasta 5, reordenables) → nombre → categoría → tallas (sugeridas según categoría, con opción de crear nuevas) + stock inicial c/u → **precio en USD** (muestra el equivalente en Bs al capturar) → precio de oferta opcional → descripción → publicar. Aparece en el catálogo al instante. Genera `StockMovement(NEW)` por variante. |
 | 🏷️ **Ofertas** | Lista de todas las prendas con botón rápido para poner/quitar `salePrice`. |
 
 **Bloqueo por suscripción** — si `paidUntil < hoy`, cualquier ruta `/admin` muestra una pantalla "Suscripción vencida, contacta al administrador" con botón de WhatsApp al número del desarrollador. El catálogo público **sigue visible** (no castiga a los clientes finales; lo que se pierde es la capacidad de actualizar, que es el servicio que se cobra).
@@ -232,6 +247,7 @@ Hola QueGrasa! 👀 Me interesan estas prendas:
 ### 5.3 Panel del proveedor `/platform` (rol `PLATFORM_ADMIN`, tú)
 
 - Lista de tiendas (MVP: una) con estado de suscripción: "Activa hasta 28-oct" / "Vencida desde 15-oct".
+- **Tasa BCV del día** visible con su fecha y fuente; campo para corregirla manualmente (queda como `MANUAL`).
 - Botón "Registrar pago" → monto + periodo → extiende `paidUntil` (+30 días por defecto).
 - Historial de pagos de cada tienda.
 - Alta de trabajadores de una tienda (crear usuario con email/contraseña) — porque la tienda pierde su panel si no paga.
@@ -248,6 +264,7 @@ Hola QueGrasa! 👀 Me interesan estas prendas:
 6. **Suscripción**: bloqueo del panel al vencer. Catálogo público sigue visible. El estado se recalcula al vuelo (`paidUntil` vs hoy) — sin jobs externos en el MVP.
 7. **Permisos**: `WORKER` = todas las operaciones de tienda (decisión del cliente: todos iguales). `PLATFORM_ADMIN` = suscripciones + administración de tiendas y usuarios. Sin más roles.
 8. **Borrado**: nada se borra físicamente. Productos se desactivan, trabajadores se marcan inactivos, categorías se inactivan. Los datos de inventario son la memoria de la tienda.
+9. **Precio dual USD/Bs**: los precios se administran en USD. El display en Bs usa la tasa BCV del día (`ExchangeRate` más reciente); si la fuente diaria falla, se muestra la última tasa disponible y su fecha real — nunca un cálculo inventado. La corrección manual desde `/platform` es el respaldo.
 
 ---
 
@@ -279,10 +296,10 @@ Cada sprint cierra con el módulo **funcionando y probado con datos reales** ant
 
 | Sprint | Duración | Alcance | Objetivo verificable |
 |---|---|---|---|
-| **S1. Base** | 1 día | Proyecto Next.js + Tailwind + Prisma, esquema completo de las 10 tablas, deploy a Vercel + Neon, seed (tienda, categorías, tallas, un usuario trabajador) | App desplegada en internet; el esquema aplica en BD sin errores |
+| **S1. Base** | 1 día | Proyecto Next.js + Tailwind + Prisma, esquema completo de las 11 tablas, deploy a Vercel + Neon, seed (tienda, categorías, tallas, un usuario trabajador), **tabla ExchangeRate + cron de tasa BCV** | App desplegada en internet; el esquema aplica en BD sin errores; la tasa del día se guarda |
 | **S2. Inventario** | 1-2 días | Subir prenda (fotos a Cloudinary, tallas sugeridas, stock inicial), lista de inventario, categorías, edición de precios/ofertas | El catálogo real de QueGrasa capturado en el sistema |
 | **S3. Venta** | 1 día | Login JWT, pantalla "Vendí" con modo venta, ajustes +/−, historial de movimientos | Trabajador descontando ventas reales en la tienda física |
-| **S4. Catálogo público** | 1-2 días | Home con filtros (categoría, talla dinámica, ofertas), detalle con carrusel, bolsa WhatsApp, SSR/SEO | Un cliente real pide por WhatsApp desde el catálogo |
+| **S4. Catálogo público** | 1-2 días | Home con filtros (categoría, talla dinámica, ofertas), detalle con carrusel, bolsa WhatsApp, **precio dual USD/Bs con tasa visible**, SSR/SEO | Un cliente real pide por WhatsApp desde el catálogo |
 | **S5. SaaS + pulido** | 1-2 días | Subscription, panel `/platform`, middleware de bloqueo, dominio, QR de mostrador, PWA | Primer pago mensual registrado; tienda operando con el sistema |
 
 **Total: 5-7 días de trabajo efectivo.**
@@ -305,3 +322,5 @@ Cada sprint cierra con el módulo **funcionando y probado con datos reales** ant
 4. El mensaje de WhatsApp llega correcto: prendas, tallas y precios, con ofertas identificadas.
 5. Al vencer la suscripción, el panel se bloquea y el catálogo sigue visible.
 6. Costo operativo mensual: $0 (sin contar el dominio anual).
+7. La tasa BCV se actualiza sola cada día; si la fuente falla, la última tasa guardada sigue operando y se puede corregir a mano desde `/platform`.
+8. Los precios en el catálogo y en el mensaje de WhatsApp muestran USD y Bs consistentes con la tasa del día.
