@@ -15,9 +15,11 @@ La solución es un sistema de dos caras, siempre sincronizados por una sola base
 
 El software se comercializa como **SaaS con suscripción mensual**: el desarrollador registra los pagos y, si una tienda deja de pagar, el panel de trabajadores se bloquea.
 
-### Perfil del desarrollador
+### Modalidad de construcción
 
-Estudiante de ingeniería con bases de programación, BD y frontend/backend. El stack elegido prioriza un solo lenguaje, abundancia de tutoriales y transferencia al mercado laboral. Ritmo estimado: 10-15 h/semana.
+Construcción **asistida por IA**: el desarrollo se hace dirigiendo a un agente de código (el estudiante especifica, la IA escribe), con el objetivo de tener el MVP funcionando en **unos pocos días** (5-7 días de trabajo). El estudiante tiene bases de programación, BD y frontend/backend, lo que le permite revisar y validar lo que la IA genera. El stack elegido (Next.js + Prisma) es el que mejor conocen las IAs y el más documentado — maximiza la calidad del código generado.
+
+**Dónde va el tiempo en esta modalidad:** no en escribir código, sino en (1) probar cada módulo con datos reales de la tienda, (2) subir el catálogo real con fotos, (3) afinar detalles de UX con los trabajadores y (4) desplegar.
 
 ---
 
@@ -271,23 +273,26 @@ Hola QueGrasa! 👀 Me interesan estas prendas:
 
 ---
 
-## 9. Plan de desarrollo por fases
+## 9. Plan de desarrollo — sprints de 1-2 días (construcción con IA)
 
-Ritmo estimado: 10-15 h/semana. Cada fase cierra con un **objetivo verificable** demostrable a la tienda.
+Cada sprint cierra con el módulo **funcionando y probado con datos reales** antes de avanzar. La IA escribe el código; el humano prueba, ajusta y valida.
 
-| Fase | Semanas | Alcance | Objetivo verificable |
+| Sprint | Duración | Alcance | Objetivo verificable |
 |---|---|---|---|
-| **0. Fundamentos** | 1 | Entorno local (Node, VS Code, Postgres con Docker), repo GitHub, proyecto Next.js + Tailwind, esquema Prisma inicial, deploy a Vercel + Neon, seed de datos de prueba | "Hola mundo" visible en internet con URL propia y BD conectada |
-| **1. Inventario core** | 2-4 | CRUD completo de prendas con fotos, categorías, diccionario de tallas, variantes con stock, subida a Cloudinary, pantallas de Inventario y Subir Prenda | El catálogo **real** completo de QueGrasa capturado en el sistema |
-| **2. Vender en tienda** | 5-6 | Login propio con JWT, pantalla "Vendí" con modo venta, movimientos con historial, ajustes y reabasto, validaciones de stock | Los trabajadores descontando ventas reales en la tienda física cada día |
-| **3. Catálogo público** | 7-9 | Home con grid y filtros (categoría, talla dinámica, ofertas), detalle con carrusel, bolsa WhatsApp, SSR/SEO, PWA instalable para trabajadores | **Lanzamiento**: clientes pidiendo por WhatsApp desde el catálogo real |
-| **4. SaaS** | 10-11 | Subscription + pagos, panel `/platform`, middleware de bloqueo, alta de trabajadores | Primer pago mensual registrado en el sistema |
-| **5. Pulido y lanzamiento** | 12 | Dominio propio, QR de mostrador, respaldos automáticos, capacitación a trabajadores, corrección de bugs de uso real | QueGrasa operando 100% con el sistema |
+| **S1. Base** | 1 día | Proyecto Next.js + Tailwind + Prisma, esquema completo de las 10 tablas, deploy a Vercel + Neon, seed (tienda, categorías, tallas, un usuario trabajador) | App desplegada en internet; el esquema aplica en BD sin errores |
+| **S2. Inventario** | 1-2 días | Subir prenda (fotos a Cloudinary, tallas sugeridas, stock inicial), lista de inventario, categorías, edición de precios/ofertas | El catálogo real de QueGrasa capturado en el sistema |
+| **S3. Venta** | 1 día | Login JWT, pantalla "Vendí" con modo venta, ajustes +/−, historial de movimientos | Trabajador descontando ventas reales en la tienda física |
+| **S4. Catálogo público** | 1-2 días | Home con filtros (categoría, talla dinámica, ofertas), detalle con carrusel, bolsa WhatsApp, SSR/SEO | Un cliente real pide por WhatsApp desde el catálogo |
+| **S5. SaaS + pulido** | 1-2 días | Subscription, panel `/platform`, middleware de bloqueo, dominio, QR de mostrador, PWA | Primer pago mensual registrado; tienda operando con el sistema |
+
+**Total: 5-7 días de trabajo efectivo.**
 
 **Riesgos y mitigación**
-- *Los trabajadores no lo usan* → Fase 2 entrega la operación diaria lo antes posible y el botón "Vendí" es de 2 toques; capacitación en Fase 5.
+- *La IA genera código que no se entiende* → el spec es la fuente de verdad; el estudiante revisa cada módulo antes de aceptarlo y pide explicación de lo que no entienda; cada módulo se prueba antes de avanzar.
+- *Los trabajadores no lo usan* → el botón "Vendí" es de 2 toques; probarlo con ellos en el S3 y ajustar.
 - *Fotos pesadas arruinan el catálogo* → Cloudinary transforma y comprime; validación de peso máximo por subida.
 - *Stock no cuadra* → `StockMovement` como bitácora completa y ajustes con nota obligatoria.
+- *Se subestima la carga de datos real* → subir el catálogo real es trabajo de la tienda (fotos por prenda); prever 2-4 horas para cargar las primeras prendas con el dueño.
 - *Abandono del servicio* → bloqueo de panel con recuperación en un clic al registrar el pago.
 
 ---
