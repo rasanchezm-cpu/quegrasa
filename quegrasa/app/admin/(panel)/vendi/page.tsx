@@ -50,12 +50,12 @@ export default async function VendiPage() {
     <div className="pb-28">
       <Link
         href="/admin"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-neutral-500"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-zinc-500"
       >
         ← Volver
       </Link>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">🛒 Vendí</h1>
-      <p className="mb-5 text-sm text-neutral-500">
+      <h1 className="mb-1 text-lg font-semibold tracking-tight text-zinc-900">Vendí</h1>
+      <p className="mb-5 text-sm text-zinc-500">
         Busca la prenda y toca la talla que se vendió. 2 toques y listo.
       </p>
       <SellScreen products={products} />

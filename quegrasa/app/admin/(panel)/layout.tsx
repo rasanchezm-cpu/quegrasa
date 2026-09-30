@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
+import { LogOut } from "lucide-react";
 
 export default async function PanelLayout({
   children,
@@ -13,21 +14,21 @@ export default async function PanelLayout({
   if (!session) redirect("/admin/login");
 
   return (
-    <div className="min-h-dvh bg-neutral-50">
-      <header className="sticky top-0 z-10 border-b border-neutral-200 bg-white/90 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
+    <div className="min-h-dvh bg-zinc-50">
+      <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white">
+        <div className="mx-auto flex h-13 max-w-lg items-center justify-between px-4">
+          <span className="text-sm font-semibold tracking-tight text-zinc-900">
+            QueGrasa
+          </span>
           <div className="flex items-center gap-2">
-            <span className="text-lg">👕</span>
-            <span className="font-bold tracking-tight">QueGrasa</span>
-          </div>
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-neutral-500">{session.name}</span>
+            <span className="text-xs text-zinc-400">{session.name}</span>
             <form action={logout}>
               <button
                 type="submit"
-                className="rounded-lg px-2.5 py-1.5 text-sm text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-900"
+                title="Cerrar sesión"
+                className="rounded-md p-1.5 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700"
               >
-                Salir
+                <LogOut size={16} strokeWidth={2} />
               </button>
             </form>
           </div>

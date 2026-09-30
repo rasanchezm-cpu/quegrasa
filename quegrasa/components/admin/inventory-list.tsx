@@ -7,6 +7,7 @@ import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { adjustStock, updateProductPrices } from "@/lib/actions/products";
 import { formatBs, usdToBs } from "@/lib/money";
+import { Minus, Plus, SearchX } from "lucide-react";
 
 export type InventoryVariant = {
   id: string;
@@ -59,8 +60,6 @@ export default function InventoryList({
     return [...groups.entries()];
   }, [filtered]);
 
-  // ---------- Ajuste de stock ----------
-
   const onAdjust = (product: InventoryProduct, variant: InventoryVariant, delta: number) => {
     setError(null);
     startTransition(async () => {
@@ -69,7 +68,6 @@ export default function InventoryList({
         setError(res.error ?? "No se pudo ajustar");
         return;
       }
-      // Actualización local del stock (fluida; la BD ya quedó actualizada)
       setList((prev) =>
         prev.map((p) =>
           p.id !== product.id
@@ -83,13 +81,11 @@ export default function InventoryList({
         ),
       );
       if ((res.stock ?? 0) === 0) {
-        setFlash(`${product.name} talla ${variant.sizeName} quedó agotada`);
+        setFlash(`${product.name} · ${variant.sizeName} agotada`);
         setTimeout(() => setFlash(null), 2500);
       }
     });
   };
-
-  // ---------- Edición de precios ----------
 
   const onPriceSubmit = (productId: string, formData: FormData) => {
     setError(null);
@@ -110,7 +106,7 @@ export default function InventoryList({
           p.id === productId ? { ...p, price, salePrice, isActive } : p,
         ),
       );
-      setFlash("Precios actualizados");
+      setFlash("Cambios guardados");
       setTimeout(() => setFlash(null), 2000);
       router.refresh();
     });
@@ -120,44 +116,44 @@ export default function InventoryList({
 
   return (
     <div>
-      {/* Búsqueda */}
       <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Buscar prenda o categoría…"
-        className="mb-5 w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 text-base outline-none focus:border-emerald-500"
+        className="mb-5 w-full rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
       />
 
       {error && (
-        <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="mb-4 rounded-lg bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
           {error}
         </p>
       )}
       {flash && (
-        <p className="mb-4 rounded-lg bg-emerald-50 px-4 py-3 text-sm text-emerald-700">
+        <p className="mb-4 rounded-lg bg-emerald-50 px-3.5 py-2.5 text-xs font-medium text-emerald-700">
           {flash}
         </p>
       )}
 
       {byCategory.length === 0 && (
-        <p className="rounded-xl bg-neutral-100 px-4 py-6 text-center text-sm text-neutral-500">
+        <p className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-zinc-200 bg-white px-4 py-10 text-center text-xs text-zinc-400">
+          <SearchX size={20} strokeWidth={1.5} />
           No hay prendas que coincidan con la búsqueda.
         </p>
       )}
 
       {byCategory.map(([category, items]) => (
-        <section key={category} className="mb-7">
-          <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-400">
+        <section key={category} className="mb-6">
+          <h2 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
             {category}
           </h2>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {items.map((p) => {
               const total = p.variants.reduce((s, v) => s + v.stock, 0);
               const price = p.salePrice ?? p.price;
               return (
                 <article
                   key={p.id}
-                  className={`rounded-2xl bg-white p-3 ring-1 ring-black/5 ${!p.isActive ? "opacity-50" : ""}`}
+                  className={`rounded-xl border border-zinc-200 bg-white p-3 ${!p.isActive ? "opacity-50" : ""}`}
                 >
                   <div className="flex gap-3">
                     {p.imageUrl ? (
@@ -165,69 +161,87 @@ export default function InventoryList({
                       <img
                         src={p.imageUrl}
                         alt=""
-                        className="h-20 w-20 shrink-0 rounded-xl object-cover"
+                        className="h-16 w-16 shrink-0 rounded-lg object-cover"
                       />
                     ) : (
-                      <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-2xl">
-                        👕
-                      </div>
+                      <div className="h-16 w-16 shrink-0 rounded-lg bg-zinc-100" />
                     )}
                     <div className="min-w-0 flex-1">
-                      <p className="truncate font-semibold">{p.name}</p>
-                      <p className="text-sm">
-                        <span className={p.salePrice ? "text-neutral-400 line-through" : ""}>
-                          ${p.price.toFixed(2)}
-                        </span>
-                        {p.salePrice && (
-                          <span className="ml-1.5 font-bold text-rose-600">
-                            ${p.salePrice.toFixed(2)}
+                      <div className="flex items-start justify-between gap-2">
+                        <p className="truncate text-sm font-medium text-zinc-900">
+                          {p.name}
+                        </p>
+                        <div className="flex shrink-0 flex-col items-end">
+                          {p.salePrice && (
+                            <span className="text-[11px] tabular-nums text-zinc-400 line-through">
+                              ${p.price.toFixed(2)}
+                            </span>
+                          )}
+                          <span
+                            className={`text-sm font-semibold tabular-nums ${
+                              p.salePrice ? "text-red-600" : "text-zinc-900"
+                            }`}
+                          >
+                            ${price.toFixed(2)}
+                          </span>
+                          {rateNum > 0 && (
+                            <span className="text-[10px] tabular-nums text-zinc-400">
+                              Bs {usdToBs(price, rateNum).toLocaleString("es-VE", { minimumFractionDigits: 0 })}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                        {!p.isActive && (
+                          <span className="rounded bg-zinc-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-zinc-400">
+                            Oculta
                           </span>
                         )}
-                        {rateNum > 0 && (
-                          <span className="ml-1 text-xs text-neutral-400">
-                            ≈ {formatBs(usdToBs(price, rateNum))}
+                        {total === 0 && (
+                          <span className="rounded bg-red-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-red-600">
+                            Agotada
                           </span>
                         )}
-                      </p>
-                      {!p.isActive && (
-                        <span className="mt-1 inline-block rounded bg-neutral-200 px-1.5 text-[10px] font-semibold uppercase text-neutral-600">
-                          Oculta del catálogo
-                        </span>
-                      )}
-                      {total === 0 && (
-                        <span className="mt-1 ml-1 inline-block rounded bg-red-100 px-1.5 text-[10px] font-semibold uppercase text-red-700">
-                          Agotada
-                        </span>
-                      )}
+                        {rateNum > 0 && p.salePrice == null && (
+                          <span className="text-[10px] tabular-nums text-zinc-400">
+                            {formatBs(usdToBs(price, rateNum))}
+                          </span>
+                        )}
+                      </div>
 
                       {/* Tallas con stock */}
                       <div className="mt-2 flex flex-wrap gap-1.5">
                         {p.variants.map((v) => (
                           <div
                             key={v.id}
-                            className={`flex items-center gap-1 rounded-lg px-1.5 py-1 text-sm ring-1 ${
+                            className={`flex items-center overflow-hidden rounded-md border text-xs tabular-nums ${
                               v.stock === 0
-                                ? "bg-neutral-50 text-neutral-400 ring-neutral-200"
-                                : "bg-emerald-50 ring-emerald-200"
+                                ? "border-zinc-100 text-zinc-300"
+                                : "border-zinc-200 text-zinc-700"
                             }`}
                           >
-                            <span className="font-semibold">{v.sizeName}</span>
+                            <span className="px-2 py-1 font-semibold">
+                              {v.sizeName}
+                            </span>
                             <span
-                              className="flex h-5 w-5 items-center justify-center rounded text-xs font-bold text-neutral-500 hover:bg-black/5"
                               role="button"
                               aria-label={`Quitar stock de ${p.name} talla ${v.sizeName}`}
                               onClick={() => onAdjust(p, v, -1)}
+                              className="flex h-full w-6 items-center justify-center border-l border-zinc-100 text-zinc-400 transition hover:bg-zinc-50 hover:text-zinc-700"
                             >
-                              −
+                              <Minus size={11} strokeWidth={2.5} />
                             </span>
-                            <span className="w-5 text-center font-bold">{v.stock}</span>
+                            <span className="flex h-full w-7 items-center justify-center border-l border-zinc-100 text-xs font-bold">
+                              {v.stock}
+                            </span>
                             <span
-                              className="flex h-5 w-5 items-center justify-center rounded text-xs font-bold text-neutral-500 hover:bg-black/5"
                               role="button"
                               aria-label={`Agregar stock de ${p.name} talla ${v.sizeName}`}
                               onClick={() => onAdjust(p, v, +1)}
+                              className="flex h-full w-6 items-center justify-center border-l border-zinc-100 text-zinc-400 transition hover:bg-zinc-50 hover:text-zinc-700"
                             >
-                              +
+                              <Plus size={11} strokeWidth={2.5} />
                             </span>
                           </div>
                         ))}
@@ -236,28 +250,28 @@ export default function InventoryList({
                   </div>
 
                   {/* Editar precios */}
-                  <details className="group mt-2">
-                    <summary className="cursor-pointer list-none text-xs font-semibold text-neutral-400 group-open:hidden">
-                      ⚙️ Editar precios
+                  <details className="group mt-2.5">
+                    <summary className="cursor-pointer list-none text-[11px] font-medium text-zinc-400 transition hover:text-zinc-700">
+                      Editar precios y visibilidad
                     </summary>
                     <form
                       action={(fd) => onPriceSubmit(p.id, fd)}
-                      className="mt-2 flex flex-wrap items-end gap-2 rounded-xl bg-neutral-50 p-2.5"
+                      className="mt-2 flex flex-wrap items-end gap-2 rounded-lg bg-zinc-50 p-2.5"
                     >
                       <input type="hidden" name="productId" value={p.id} />
-                      <label className="text-xs text-neutral-500">
-                        Precio $
+                      <label className="text-[10px] uppercase tracking-wide text-zinc-400">
+                        Precio ($)
                         <input
                           name="price"
                           type="number"
                           step="0.01"
                           min="0.01"
                           defaultValue={p.price}
-                          className="ml-1 w-20 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+                          className="mt-1 w-20 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-xs tabular-nums text-zinc-900"
                         />
                       </label>
-                      <label className="text-xs text-neutral-500">
-                        Oferta $
+                      <label className="text-[10px] uppercase tracking-wide text-zinc-400">
+                        Oferta ($)
                         <input
                           name="salePrice"
                           type="number"
@@ -265,23 +279,23 @@ export default function InventoryList({
                           min="0.01"
                           placeholder="—"
                           defaultValue={p.salePrice ?? ""}
-                          className="ml-1 w-20 rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
+                          className="mt-1 w-20 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-xs tabular-nums text-zinc-900"
                         />
                       </label>
-                      <label className="flex items-center gap-1.5 text-xs text-neutral-500">
+                      <label className="flex items-center gap-1.5 pb-2 text-xs text-zinc-600">
                         <input
                           type="checkbox"
                           name="isActive"
                           value="true"
                           defaultChecked={p.isActive}
-                          className="h-4 w-4 accent-emerald-600"
+                          className="h-3.5 w-3.5 accent-zinc-900"
                         />
                         Visible en catálogo
                       </label>
                       <button
                         type="submit"
                         disabled={savingId === p.id || busy}
-                        className="rounded-lg bg-neutral-900 px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-40"
+                        className="mb-0.5 rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-zinc-800 disabled:opacity-40"
                       >
                         {savingId === p.id ? "Guardando…" : "Guardar"}
                       </button>

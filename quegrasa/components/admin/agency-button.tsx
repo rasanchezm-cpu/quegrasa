@@ -1,10 +1,11 @@
 "use client";
 
-// Botón "En agencia ✓" — un toque y el envío sale de pendientes.
+// Botón "En agencia" — un toque y el envío sale de pendientes.
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { markShipmentAtAgency } from "@/lib/actions/sales";
+import { Check } from "lucide-react";
 
 export default function AgencyButton({ shipmentId }: { shipmentId: string }) {
   const router = useRouter();
@@ -26,9 +27,10 @@ export default function AgencyButton({ shipmentId }: { shipmentId: string }) {
       type="button"
       onClick={click}
       disabled={busy}
-      className="w-full rounded-xl bg-amber-500 py-3 text-sm font-bold text-white transition active:scale-[0.98] disabled:opacity-50"
+      className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-amber-600 py-2.5 text-xs font-semibold text-white transition hover:bg-amber-500 active:scale-[0.98] disabled:opacity-50"
     >
-      {busy ? "Actualizando…" : "🚚 En agencia ✓"}
+      <Check size={14} strokeWidth={2.5} />
+      {busy ? "Actualizando…" : "Entregado en agencia"}
     </button>
   );
 }

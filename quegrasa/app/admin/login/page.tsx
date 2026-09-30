@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { LogIn } from "lucide-react";
 import { login, type LoginState } from "@/lib/actions/auth";
 
 export default function LoginPage() {
@@ -10,63 +11,74 @@ export default function LoginPage() {
   );
 
   return (
-    <main className="flex min-h-dvh flex-col items-center justify-center bg-neutral-950 px-6 text-white">
+    <main className="flex min-h-dvh items-center justify-center bg-zinc-50 px-6">
       <div className="w-full max-w-sm">
-        <div className="mb-10 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white text-3xl">
-            👕
-          </div>
-          <h1 className="text-3xl font-bold tracking-tight">QueGrasa</h1>
-          <p className="mt-1 text-sm text-neutral-400">
-            Panel de la tienda — inicia sesión
-          </p>
+        {/* Marca */}
+        <div className="mb-8 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+            QueGrasa
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">Panel de la tienda</p>
         </div>
 
-        <form action={formAction} className="space-y-4">
-          <div>
-            <label htmlFor="email" className="mb-1.5 block text-sm text-neutral-300">
-              Correo
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              required
-              className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3.5 text-base outline-none placeholder:text-neutral-500 focus:border-white"
-              placeholder="tucorreo@ejemplo.com"
-            />
-          </div>
+        <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
+          <form action={formAction} className="space-y-4">
+            <div>
+              <label
+                htmlFor="email"
+                className="mb-1.5 block text-xs font-medium text-zinc-600"
+              >
+                Correo
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
+                placeholder="nombre@correo.com"
+              />
+            </div>
 
-          <div>
-            <label htmlFor="password" className="mb-1.5 block text-sm text-neutral-300">
-              Contraseña
-            </label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              required
-              className="w-full rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3.5 text-base outline-none placeholder:text-neutral-500 focus:border-white"
-              placeholder="••••••••"
-            />
-          </div>
+            <div>
+              <label
+                htmlFor="password"
+                className="mb-1.5 block text-xs font-medium text-zinc-600"
+              >
+                Contraseña
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                className="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
+                placeholder="••••••••"
+              />
+            </div>
 
-          {state?.error && (
-            <p className="rounded-lg bg-red-500/10 px-4 py-3 text-sm text-red-400">
-              {state.error}
-            </p>
-          )}
+            {state?.error && (
+              <p className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">
+                {state.error}
+              </p>
+            )}
 
-          <button
-            type="submit"
-            disabled={pending}
-            className="w-full rounded-xl bg-white py-3.5 text-base font-semibold text-neutral-900 transition active:scale-[0.98] disabled:opacity-50"
-          >
-            {pending ? "Entrando…" : "Entrar"}
-          </button>
-        </form>
+            <button
+              type="submit"
+              disabled={pending}
+              className="flex w-full items-center justify-center gap-2 rounded-lg bg-zinc-900 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 active:scale-[0.98] disabled:opacity-50"
+            >
+              <LogIn size={16} strokeWidth={2} />
+              {pending ? "Entrando…" : "Entrar"}
+            </button>
+          </form>
+        </div>
+
+        <p className="mt-6 text-center text-xs text-zinc-400">
+          QueGrasa · Sistema de inventario
+        </p>
       </div>
     </main>
   );

@@ -40,12 +40,12 @@ export default async function MovimientosPage() {
     <div>
       <Link
         href="/admin"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-neutral-500"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-zinc-500"
       >
         ← Volver
       </Link>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">🧾 Movimientos</h1>
-      <p className="mb-6 text-sm text-neutral-500">
+      <h1 className="mb-1 text-lg font-semibold tracking-tight text-zinc-900">Movimientos</h1>
+      <p className="mb-6 text-sm text-zinc-500">
         Últimos {movements.length} cambios de stock — quién, cuándo y qué.
       </p>
 
@@ -66,7 +66,7 @@ export default async function MovimientosPage() {
                 <p className="truncate text-sm font-medium">
                   {m.variant.product.name} · {m.variant.size.name}
                 </p>
-                <p className="text-xs text-neutral-400">
+                <p className="text-xs text-zinc-400">
                   {m.createdAt.toLocaleString("es-VE", {
                     day: "numeric",
                     month: "short",
@@ -88,7 +88,7 @@ export default async function MovimientosPage() {
           );
         })}
         {movements.length === 0 && (
-          <p className="rounded-xl bg-neutral-100 px-4 py-6 text-center text-sm text-neutral-500">
+          <p className="rounded-xl bg-zinc-100 px-4 py-6 text-center text-sm text-zinc-500">
             Sin movimientos todavía.
           </p>
         )}

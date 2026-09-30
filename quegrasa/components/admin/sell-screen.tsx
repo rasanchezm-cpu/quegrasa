@@ -1,12 +1,12 @@
 "use client";
 
-// "Vendí" (spec §5.2): buscar → tap en la talla vendida → ✓.
-// Modo venta: acumula lo vendido en la sesión; al cerrar puede
-// marcarlo como envío online (crea el Shipment PENDING).
+// "Vendí" (spec §5.2): buscar → tap en la talla vendida → descuento.
+// Modo venta: acumula la sesión; al cerrar puede marcarse como envío.
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { sellVariant, createShipment } from "@/lib/actions/sales";
+import { Check, Undo2, PackageCheck, SearchX } from "lucide-react";
 
 export type SellVariant = {
   id: string;
@@ -35,7 +35,7 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
   const [query, setQuery] = useState("");
   const [list, setList] = useState(products);
   const [sold, setSold] = useState<SoldItem[]>([]);
-  const [flash, setFlash] = useState<{ id: string; text: string } | null>(null);
+  const [flash, setFlash] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, startTransition] = useTransition();
 
@@ -61,7 +61,6 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
         setError(res.error ?? "No se pudo registrar");
         return;
       }
-      // Actualiza el stock local
       setList((prev) =>
         prev.map((x) =>
           x.id !== p.id
@@ -74,7 +73,6 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
               },
         ),
       );
-      // Modo venta: acumula la sesión
       const price = p.salePrice ?? p.price;
       setSold((prev) => {
         const key = `${v.id}`;
@@ -84,19 +82,11 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
         }
         return [
           ...prev,
-          {
-            key,
-            variantId: v.id,
-            productName: p.name,
-            sizeName: v.sizeName,
-            price,
-            qty: 1,
-          },
+          { key, variantId: v.id, productName: p.name, sizeName: v.sizeName, price, qty: 1 },
         ];
       });
-      // Feedback instantáneo
-      setFlash({ id: v.id, text: `${p.name} ${v.sizeName} ✓` });
-      setTimeout(() => setFlash(null), 1200);
+      setFlash(`${p.name} · ${v.sizeName}`);
+      setTimeout(() => setFlash(null), 1400);
       router.refresh();
     });
   };
@@ -135,7 +125,7 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
       setCustomerPhone("");
       setShipping(false);
       setShipDone(true);
-      setTimeout(() => setShipDone(false), 4000);
+      setTimeout(() => setShipDone(false), 5000);
       router.refresh();
     });
   };
@@ -149,26 +139,30 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
 
   return (
     <div>
-      {/* Buscador siempre arriba */}
+      {/* Buscador */}
       <input
         autoFocus
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="¿Qué vendió? Escribe el nombre…"
-        className="mb-4 w-full rounded-xl border border-neutral-300 bg-white px-4 py-3.5 text-base outline-none focus:border-sky-500"
+        placeholder="Buscar prenda por nombre…"
+        className="mb-4 w-full rounded-xl border border-zinc-300 bg-white px-4 py-2.5 text-sm outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
       />
 
       {error && (
-        <p className="mb-3 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+        <p className="mb-3 rounded-lg bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
+          {error}
+        </p>
       )}
       {shipDone && (
-        <p className="mb-3 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          📦 Envío creado — lo verás en la lista de pendientes de "Envíos".
+        <p className="mb-3 flex items-center gap-2 rounded-lg bg-emerald-50 px-3.5 py-2.5 text-xs text-emerald-700">
+          <PackageCheck size={14} strokeWidth={2} />
+          Envío creado — está en la lista de pendientes de Envíos.
         </p>
       )}
       {flash && (
-        <p className="mb-3 rounded-lg bg-emerald-50 px-4 py-3 text-center text-sm font-semibold text-emerald-700">
-          ✓ {flash.text}
+        <p className="mb-3 flex items-center justify-center gap-1.5 rounded-lg bg-emerald-50 px-3.5 py-2.5 text-xs font-medium text-emerald-700">
+          <Check size={14} strokeWidth={2.5} />
+          {flash} — registrado
         </p>
       )}
 
@@ -176,40 +170,38 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
       <div className="space-y-2">
         {results.map((p) => {
           const total = p.variants.reduce((s, v) => s + v.stock, 0);
-          if (total === 0) return null; // agotada no aparece
+          if (total === 0) return null;
           return (
             <article
               key={p.id}
-              className="flex items-center gap-3 rounded-2xl bg-white p-2.5 ring-1 ring-black/5"
+              className="flex items-center gap-3 rounded-xl border border-zinc-200 bg-white p-2.5"
             >
               {p.imageUrl ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={p.imageUrl}
                   alt=""
-                  className="h-14 w-14 shrink-0 rounded-xl object-cover"
+                  className="h-14 w-14 shrink-0 rounded-lg object-cover"
                 />
               ) : (
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-xl bg-neutral-100 text-xl">
-                  👕
-                </div>
+                <div className="h-14 w-14 shrink-0 rounded-lg bg-zinc-100" />
               )}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{p.name}</p>
-                <p className="text-xs text-neutral-500">
+                <p className="truncate text-sm font-medium text-zinc-900">{p.name}</p>
+                <p className="text-xs tabular-nums text-zinc-500">
                   ${(p.salePrice ?? p.price).toFixed(2)}
                 </p>
-                <div className="mt-1.5 flex flex-wrap gap-1.5">
+                <div className="mt-1.5 flex flex-wrap gap-1">
                   {p.variants.map((v) => (
                     <button
                       key={v.id}
                       type="button"
                       disabled={v.stock === 0 || busy}
                       onClick={() => tapTalla(p, v)}
-                      className={`min-w-11 rounded-lg px-2.5 py-2 text-sm font-bold transition active:scale-90 ${
+                      className={`min-w-10 rounded-md px-2 py-1.5 text-xs font-semibold transition active:scale-95 ${
                         v.stock === 0
-                          ? "cursor-not-allowed bg-neutral-100 text-neutral-300 line-through"
-                          : "bg-sky-600 text-white hover:bg-sky-700"
+                          ? "cursor-not-allowed bg-zinc-50 text-zinc-300 line-through"
+                          : "bg-zinc-900 text-white hover:bg-zinc-700"
                       }`}
                       title={v.stock === 0 ? "Agotada" : `Quedan ${v.stock}`}
                     >
@@ -222,24 +214,30 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
           );
         })}
         {results.length === 0 && (
-          <p className="rounded-xl bg-neutral-100 px-4 py-6 text-center text-sm text-neutral-500">
-            Sin resultados. Escribe otra cosa o revisa que la prenda tenga stock.
+          <p className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-zinc-200 bg-white px-4 py-10 text-center text-xs text-zinc-400">
+            <SearchX size={20} strokeWidth={1.5} />
+            Sin resultados. Prueba otro nombre o revisa el stock en Inventario.
           </p>
         )}
       </div>
 
       {/* Barra de sesión de venta (fija abajo) */}
       {sold.length > 0 && (
-        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-neutral-200 bg-white/95 p-3 backdrop-blur">
-          <div className="mx-auto max-w-lg space-y-2">
-            <p className="text-xs font-semibold uppercase tracking-wide text-neutral-400">
-              Vendiste en esta sesión · ${totalUsd.toFixed(2)}
-            </p>
+        <div className="fixed inset-x-0 bottom-0 z-20 border-t border-zinc-200 bg-white p-3">
+          <div className="mx-auto max-w-lg space-y-2.5">
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+                Sesión de venta
+              </p>
+              <p className="text-sm font-semibold tabular-nums text-zinc-900">
+                ${totalUsd.toFixed(2)}
+              </p>
+            </div>
             <div className="flex flex-wrap gap-1.5">
               {sold.map((s) => (
                 <span
                   key={s.key}
-                  className="rounded-lg bg-sky-50 px-2 py-1 text-xs font-medium text-sky-800 ring-1 ring-sky-200"
+                  className="rounded-md bg-zinc-100 px-2 py-1 text-[11px] font-medium text-zinc-700"
                 >
                   {s.productName} {s.sizeName}
                   {s.qty > 1 && ` ×${s.qty}`}
@@ -251,23 +249,25 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
                 type="button"
                 onClick={undoLast}
                 disabled={busy}
-                className="flex-1 rounded-xl bg-neutral-100 py-3 text-sm font-semibold text-neutral-700 disabled:opacity-50"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-zinc-200 py-2.5 text-xs font-medium text-zinc-600 transition hover:bg-zinc-50 disabled:opacity-50"
               >
-                ↩︎ Revertir última
+                <Undo2 size={14} strokeWidth={2} />
+                Revertir
               </button>
               <button
                 type="button"
                 onClick={() => setShipping(true)}
-                className="flex-1 rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-amber-600 py-2.5 text-xs font-semibold text-white transition hover:bg-amber-500 active:scale-[0.98]"
               >
-                📦 Enviar por MRW
+                <PackageCheck size={14} strokeWidth={2} />
+                Enviar por MRW
               </button>
               <button
                 type="button"
                 onClick={finishLocal}
-                className="flex-1 rounded-xl bg-emerald-600 py-3 text-sm font-semibold text-white"
+                className="flex-1 rounded-lg bg-zinc-900 py-2.5 text-xs font-semibold text-white transition hover:bg-zinc-800 active:scale-[0.98]"
               >
-                ✓ Listo
+                Listo
               </button>
             </div>
           </div>
@@ -276,32 +276,34 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
 
       {/* Panel de envío */}
       {shipping && (
-        <div className="fixed inset-0 z-30 flex items-end bg-black/40 p-3">
-          <div className="mx-auto w-full max-w-lg space-y-3 rounded-2xl bg-white p-4">
-            <h3 className="font-bold">📦 Enviar por MRW</h3>
-            <p className="text-xs text-neutral-500">
-              Las {sold.reduce((s, x) => s + x.qty, 0)} pieza(s) vendidas quedarán en la
-              lista de pendientes para llevar a la agencia.
+        <div className="fixed inset-0 z-30 flex items-end bg-zinc-900/40 p-3">
+          <div className="mx-auto w-full max-w-lg space-y-3 rounded-xl bg-white p-4 shadow-xl">
+            <h3 className="text-sm font-semibold text-zinc-900">
+              Enviar por MRW
+            </h3>
+            <p className="text-xs text-zinc-500">
+              {sold.reduce((s, x) => s + x.qty, 0)} pieza(s) quedarán pendientes
+              para llevar a la agencia.
             </p>
             <input
               autoFocus
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
               placeholder="Nombre del cliente (para MRW)"
-              className="w-full rounded-xl border border-neutral-300 px-4 py-3 outline-none focus:border-amber-500"
+              className="w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
             />
             <input
               value={customerPhone}
               onChange={(e) => setCustomerPhone(e.target.value)}
               placeholder="Teléfono (opcional)"
-              className="w-full rounded-xl border border-neutral-300 px-4 py-3 outline-none focus:border-amber-500"
+              className="w-full rounded-lg border border-zinc-300 px-3.5 py-2.5 text-sm outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
             />
-            {error && <p className="text-sm text-red-600">{error}</p>}
+            {error && <p className="text-xs text-red-600">{error}</p>}
             <div className="flex gap-2 pt-1">
               <button
                 type="button"
                 onClick={() => setShipping(false)}
-                className="flex-1 rounded-xl bg-neutral-100 py-3 text-sm font-semibold text-neutral-700"
+                className="flex-1 rounded-lg border border-zinc-200 py-2.5 text-xs font-medium text-zinc-600 transition hover:bg-zinc-50"
               >
                 Cancelar
               </button>
@@ -309,7 +311,7 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
                 type="button"
                 onClick={confirmShipping}
                 disabled={shipBusy || customerName.trim().length < 2}
-                className="flex-1 rounded-xl bg-amber-500 py-3 text-sm font-semibold text-white disabled:opacity-40"
+                className="flex-1 rounded-lg bg-amber-600 py-2.5 text-xs font-semibold text-white transition hover:bg-amber-500 disabled:opacity-40"
               >
                 {shipBusy ? "Creando…" : "Crear envío"}
               </button>

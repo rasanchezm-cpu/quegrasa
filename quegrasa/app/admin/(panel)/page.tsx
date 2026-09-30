@@ -1,18 +1,20 @@
-// Inicio del panel: 6 botones grandes (especificación §5.2).
-// Vendí/Envíos activos desde S3; el badge muestra los envíos pendientes.
+// Inicio del panel: menú principal (especificación §5.2).
+// Diseño sobrio de herramienta: lista vertical, iconos de línea,
+// grafito como acento, semántica solo donde importa.
 import Link from "next/link";
 import { prisma } from "@/lib/db";
+import {
+  ShoppingCart,
+  Package,
+  ClipboardList,
+  PlusCircle,
+  Tag,
+  LayoutGrid,
+  ChevronRight,
+  History,
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
-
-type Btn = {
-  href: string | null;
-  emoji: string;
-  label: string;
-  soon?: boolean;
-  color: string;
-  badge?: number;
-};
 
 export default async function AdminHome() {
   const store = await prisma.store.findFirst({ orderBy: { createdAt: "asc" } });
@@ -22,73 +24,121 @@ export default async function AdminHome() {
       })
     : 0;
 
-  const BUTTONS: Btn[] = [
-    { href: "/admin/vendi", emoji: "🛒", label: "Vendí", color: "bg-sky-50 text-sky-600" },
-    { href: "/admin/envios", emoji: "📦", label: "Envíos", color: "bg-amber-50 text-amber-600", badge: pendingShipments },
-    { href: "/admin/inventario", emoji: "📋", label: "Inventario", color: "bg-emerald-50 text-emerald-600" },
-    { href: "/admin/subir", emoji: "➕", label: "Subir prenda", color: "bg-violet-50 text-violet-600" },
-    { href: "/admin/ofertas", emoji: "🏷️", label: "Ofertas", color: "bg-rose-50 text-rose-600" },
-    { href: null, emoji: "🖼️", label: "Collage", soon: true, color: "bg-indigo-50 text-indigo-600" },
+  const items: {
+    href: string;
+    icon: React.ComponentType<{ size?: number; strokeWidth?: number }>;
+    label: string;
+    desc: string;
+    badge?: number;
+  }[] = [
+    {
+      href: "/admin/vendi",
+      icon: ShoppingCart,
+      label: "Vendí",
+      desc: "Descuenta una venta en dos toques",
+    },
+    {
+      href: "/admin/envios",
+      icon: Package,
+      label: "Envíos",
+      desc: "Pendientes de llevar a la agencia MRW",
+      badge: pendingShipments,
+    },
+    {
+      href: "/admin/inventario",
+      icon: ClipboardList,
+      label: "Inventario",
+      desc: "Stock por talla, precios y visibilidad",
+    },
+    {
+      href: "/admin/subir",
+      icon: PlusCircle,
+      label: "Subir prenda",
+      desc: "Publica en el catálogo con fotos",
+    },
+    {
+      href: "/admin/ofertas",
+      icon: Tag,
+      label: "Ofertas",
+      desc: "Pon o quita precios rebajados",
+    },
+    {
+      href: "/admin/collage",
+      icon: LayoutGrid,
+      label: "Collage",
+      desc: "Imagen promocional para estados",
+      badge: -1, // pronto
+    },
   ];
 
   return (
     <div>
-      <h1 className="text-2xl font-bold tracking-tight text-neutral-900">
-        Hola 👋
+      <h1 className="text-lg font-semibold tracking-tight text-zinc-900">
+        Panel de tienda
       </h1>
-      <p className="mt-1 text-sm text-neutral-500">¿Qué vas a hacer hoy?</p>
+      <p className="mt-0.5 text-sm text-zinc-500">¿Qué vas a hacer hoy?</p>
 
-      <div className="mt-6 grid grid-cols-2 gap-3">
-        {BUTTONS.map((b) => {
+      <nav className="mt-6 overflow-hidden rounded-xl border border-zinc-200 bg-white">
+        {items.map((it, i) => {
+          const Icon = it.icon;
+          const soon = it.badge === -1;
           const inner = (
             <div
-              className={`relative flex aspect-square flex-col items-center justify-center gap-2 rounded-2xl transition active:scale-[0.97] ${
-                b.soon
-                  ? "bg-neutral-100 text-neutral-400"
-                  : `${b.color} shadow-sm ring-1 ring-black/5`
-              }`}
+              className={`flex items-center gap-3.5 px-4 py-3.5 ${
+                i > 0 ? "border-t border-zinc-100" : ""
+              } ${soon ? "opacity-45" : ""}`}
             >
-              <span className="text-4xl">{b.emoji}</span>
-              <span className="px-2 text-center text-sm font-semibold leading-tight">
-                {b.label}
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700">
+                <Icon size={18} strokeWidth={1.8} />
               </span>
-              {b.soon && (
-                <span className="rounded-full bg-neutral-200 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-neutral-500">
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-zinc-900">
+                  {it.label}
+                </span>
+                <span className="block truncate text-xs text-zinc-400">
+                  {it.desc}
+                </span>
+              </span>
+              {soon ? (
+                <span className="shrink-0 rounded bg-zinc-100 px-1.5 py-0.5 text-[10px] font-medium uppercase tracking-wide text-zinc-400">
                   Pronto
                 </span>
-              )}
-              {b.badge != null && b.badge > 0 && (
-                <span className="absolute right-2.5 top-2.5 flex h-7 min-w-7 items-center justify-center rounded-full bg-amber-500 px-1.5 text-xs font-bold text-white shadow">
-                  {b.badge}
-                </span>
+              ) : (
+                <>
+                  {it.badge != null && it.badge > 0 && (
+                    <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-semibold tabular-nums text-white">
+                      {it.badge}
+                    </span>
+                  )}
+                  <ChevronRight
+                    size={16}
+                    strokeWidth={2}
+                    className="shrink-0 text-zinc-300"
+                  />
+                </>
               )}
             </div>
           );
 
-          return b.soon ? (
-            <div key={b.label} className="cursor-not-allowed select-none">
+          return soon ? (
+            <div key={it.label} className="cursor-not-allowed select-none">
               {inner}
             </div>
           ) : (
-            <Link key={b.label} href={b.href!}>
+            <Link key={it.label} href={it.href} className="block transition hover:bg-zinc-50 active:bg-zinc-100">
               {inner}
             </Link>
           );
         })}
-      </div>
-
-      <p className="mt-6 rounded-xl bg-sky-50 px-4 py-3 text-xs leading-relaxed text-sky-800">
-        💡 <b>Vendí</b>: toca la talla que se vendió (2 toques, funciona en modo
-        venta seguida). <b>Envíos</b>: lo pendiente para llevar a MRW, con botón
-        "En agencia ✓".
-      </p>
+      </nav>
 
       <p className="mt-4 text-center">
         <Link
           href="/admin/movimientos"
-          className="text-xs font-medium text-neutral-400 underline underline-offset-2"
+          className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 transition hover:text-zinc-700"
         >
-          🧾 Ver historial de movimientos
+          <History size={13} strokeWidth={2} />
+          Ver historial de movimientos
         </Link>
       </p>
     </div>

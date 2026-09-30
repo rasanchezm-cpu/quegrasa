@@ -44,12 +44,12 @@ export default async function OfertasPage() {
     <div>
       <Link
         href="/admin"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-neutral-500"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-zinc-500"
       >
         ← Volver
       </Link>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">🏷️ Ofertas</h1>
-      <p className="mb-6 text-sm text-neutral-500">
+      <h1 className="mb-1 text-lg font-semibold tracking-tight text-zinc-900">Ofertas</h1>
+      <p className="mb-6 text-sm text-zinc-500">
         Pon el precio de oferta y la prenda sale tachada en el catálogo.
       </p>
       <OffersList products={products} />

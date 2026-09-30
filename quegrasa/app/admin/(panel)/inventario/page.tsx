@@ -56,12 +56,12 @@ export default async function InventarioPage() {
     <div>
       <Link
         href="/admin"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-neutral-500"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-zinc-500"
       >
         ← Volver
       </Link>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">📋 Inventario</h1>
-      <p className="mb-6 text-sm text-neutral-500">
+      <h1 className="mb-1 text-lg font-semibold tracking-tight text-zinc-900">Inventario</h1>
+      <p className="mb-6 text-sm text-zinc-500">
         Toca − cuando se vende o daña una pieza, + cuando llega mercancía.
       </p>
       <InventoryList products={products} rate={rateInfo?.rate ?? null} />

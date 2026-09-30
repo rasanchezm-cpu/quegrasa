@@ -46,19 +46,19 @@ export default async function EnviosPage() {
     <div>
       <Link
         href="/admin"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-neutral-500"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-zinc-500"
       >
         ← Volver
       </Link>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">📦 Envíos</h1>
-      <p className="mb-6 text-sm text-neutral-500">
+      <h1 className="mb-1 text-lg font-semibold tracking-tight text-zinc-900">Envíos</h1>
+      <p className="mb-6 text-sm text-zinc-500">
         Lo pendiente es lo que hay que llevar a la agencia MRW. Toca "En agencia" al
         entregarlo.
       </p>
 
       {/* Pendientes */}
       <section>
-        <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-400">
+        <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
           Pendientes ({pending.length})
         </h2>
         {pending.length === 0 ? (
@@ -76,13 +76,13 @@ export default async function EnviosPage() {
                   <div>
                     <p className="font-bold">{s.customerName}</p>
                     {s.customerPhone && (
-                      <p className="text-xs text-neutral-500">{s.customerPhone}</p>
+                      <p className="text-xs text-zinc-500">{s.customerPhone}</p>
                     )}
                     {s.note && (
-                      <p className="text-xs italic text-neutral-400">{s.note}</p>
+                      <p className="text-xs italic text-zinc-400">{s.note}</p>
                     )}
                   </div>
-                  <span className="shrink-0 text-[10px] text-neutral-400">
+                  <span className="shrink-0 text-[10px] text-zinc-400">
                     {s.createdAt.toLocaleDateString("es-VE", {
                       day: "numeric",
                       month: "short",
@@ -91,7 +91,7 @@ export default async function EnviosPage() {
                 </div>
                 <ul className="mb-3 space-y-0.5">
                   {s.items.map((it) => (
-                    <li key={it.id} className="text-sm text-neutral-600">
+                    <li key={it.id} className="text-sm text-zinc-600">
                       · {it.variant.product.name} — talla {it.variant.size.name} ×
                       {it.qty}
                     </li>
@@ -106,11 +106,11 @@ export default async function EnviosPage() {
 
       {/* Historial */}
       <section>
-        <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-neutral-400">
+        <h2 className="mb-2 text-xs font-bold uppercase tracking-wider text-zinc-400">
           Entregados a la agencia
         </h2>
         {sent.length === 0 ? (
-          <p className="rounded-xl bg-neutral-100 px-4 py-5 text-center text-sm text-neutral-500">
+          <p className="rounded-xl bg-zinc-100 px-4 py-5 text-center text-sm text-zinc-500">
             Aún no hay envíos entregados.
           </p>
         ) : (
@@ -118,18 +118,18 @@ export default async function EnviosPage() {
             {sent.map((s) => (
               <article
                 key={s.id}
-                className="rounded-xl bg-neutral-50 p-3 text-sm ring-1 ring-black/5"
+                className="rounded-xl bg-zinc-50 p-3 text-sm ring-1 ring-black/5"
               >
-                <p className="font-semibold text-neutral-700">
+                <p className="font-semibold text-zinc-700">
                   {s.customerName}{" "}
-                  <span className="font-normal text-neutral-400">
+                  <span className="font-normal text-zinc-400">
                     · {s.updatedAt.toLocaleDateString("es-VE", {
                       day: "numeric",
                       month: "short",
                     })}
                   </span>
                 </p>
-                <p className="text-xs text-neutral-500">
+                <p className="text-xs text-zinc-500">
                   {s.items
                     .map(
                       (it) =>

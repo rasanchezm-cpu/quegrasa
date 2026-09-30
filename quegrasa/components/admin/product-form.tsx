@@ -7,6 +7,7 @@ import { useActionState, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { createProduct, type ProductFormState } from "@/lib/actions/products";
 import { formatBs, usdToBs } from "@/lib/money";
+import { CheckCircle2, ImagePlus, X, Plus } from "lucide-react";
 
 type SizeOption = { id: string; name: string };
 type Photo = { url: string; publicId: string };
@@ -135,13 +136,17 @@ export default function ProductForm({
 
   if (state.success) {
     return (
-      <div className="rounded-2xl bg-emerald-50 p-8 text-center text-emerald-800">
-        <p className="text-5xl">✅</p>
-        <p className="mt-3 text-lg font-semibold">¡Prenda publicada!</p>
-        <p className="mt-1 text-sm">Ya es visible en el inventario.</p>
+      <div className="flex flex-col items-center rounded-xl border border-emerald-200 bg-emerald-50 p-8 text-center">
+        <CheckCircle2 size={32} strokeWidth={1.5} className="text-emerald-600" />
+        <p className="mt-3 text-sm font-semibold text-emerald-800">
+          Prenda publicada
+        </p>
+        <p className="mt-1 text-xs text-emerald-700">
+          Ya es visible en el inventario.
+        </p>
         <button
           onClick={() => router.push("/admin/inventario")}
-          className="mt-5 rounded-xl bg-emerald-600 px-5 py-3 font-semibold text-white"
+          className="mt-5 rounded-lg bg-zinc-900 px-4 py-2.5 text-xs font-medium text-white transition hover:bg-zinc-800"
         >
           Ir al inventario
         </button>
@@ -153,8 +158,8 @@ export default function ProductForm({
     <form action={onSubmit} className="space-y-6">
       {/* ---------- Fotos ---------- */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-neutral-700">
-          Fotos (hasta {MAX_PHOTOS})
+        <h2 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
+          Fotos (máximo {MAX_PHOTOS})
         </h2>
         <div className="grid grid-cols-3 gap-2">
           {photos.map((p) => (
@@ -163,15 +168,15 @@ export default function ProductForm({
               <img
                 src={p.url}
                 alt=""
-                className="aspect-square w-full rounded-xl object-cover ring-1 ring-black/5"
+                className="aspect-square w-full rounded-lg object-cover ring-1 ring-zinc-200"
               />
               <button
                 type="button"
                 onClick={() => removePhoto(p.publicId)}
-                className="absolute -right-1.5 -top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-red-500 text-sm font-bold text-white shadow"
+                className="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-900 text-white shadow"
                 aria-label="Quitar foto"
               >
-                ✕
+                <X size={12} strokeWidth={2.5} />
               </button>
             </div>
           ))}
@@ -180,10 +185,10 @@ export default function ProductForm({
               type="button"
               onClick={() => fileInput.current?.click()}
               disabled={uploading}
-              className="flex aspect-square flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-neutral-300 text-neutral-400 transition active:scale-95 disabled:opacity-50"
+              className="flex aspect-square flex-col items-center justify-center gap-1.5 rounded-lg border border-dashed border-zinc-300 text-zinc-400 transition hover:border-zinc-400 hover:text-zinc-600 active:scale-95 disabled:opacity-50"
             >
-              <span className="text-3xl">📷</span>
-              <span className="text-xs font-medium">
+              <ImagePlus size={20} strokeWidth={1.5} />
+              <span className="text-[11px] font-medium">
                 {uploading ? "Subiendo…" : "Agregar"}
               </span>
             </button>
@@ -198,22 +203,22 @@ export default function ProductForm({
           onChange={(e) => handleFiles(e.target.files)}
         />
         {uploadError && (
-          <p className="mt-2 text-sm text-red-600">{uploadError}</p>
+          <p className="mt-2 text-xs text-red-600">{uploadError}</p>
         )}
       </section>
 
       {/* ---------- Datos ---------- */}
       <section className="space-y-4">
         <div>
-          <label htmlFor="name" className="mb-1.5 block text-sm font-semibold text-neutral-700">
-            Nombre
+          <label htmlFor="name" className="mb-1.5 block text-xs font-medium text-zinc-600">
+            Nombre de la prenda
           </label>
           <input
             id="name"
             name="name"
             required
             placeholder="Ej: Jean recto azul"
-            className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 outline-none focus:border-violet-500"
+            className="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
           />
           {state.fieldErrors?.name && (
             <p className="mt-1 text-xs text-red-600">{state.fieldErrors.name}</p>
@@ -221,7 +226,7 @@ export default function ProductForm({
         </div>
 
         <div>
-          <label htmlFor="categoryId" className="mb-1.5 block text-sm font-semibold text-neutral-700">
+          <label htmlFor="categoryId" className="mb-1.5 block text-xs font-medium text-zinc-600">
             Categoría
           </label>
           <select
@@ -229,7 +234,7 @@ export default function ProductForm({
             name="categoryId"
             required
             defaultValue=""
-            className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 outline-none focus:border-violet-500"
+            className="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
           >
             <option value="" disabled>
               Elige una categoría…
@@ -244,7 +249,7 @@ export default function ProductForm({
 
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label htmlFor="price" className="mb-1.5 block text-sm font-semibold text-neutral-700">
+            <label htmlFor="price" className="mb-1.5 block text-xs font-medium text-zinc-600">
               Precio (USD)
             </label>
             <input
@@ -257,16 +262,16 @@ export default function ProductForm({
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="15.00"
-              className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 outline-none focus:border-violet-500"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm tabular-nums outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
             />
             {rateNum > 0 && priceNum > 0 && (
-              <p className="mt-1 text-xs text-neutral-500">
+              <p className="mt-1 text-[10px] tabular-nums text-zinc-400">
                 ≈ {formatBs(usdToBs(priceNum, rateNum))}
               </p>
             )}
           </div>
           <div>
-            <label className="mb-1.5 flex items-center gap-2 text-sm font-semibold text-neutral-700">
+            <label className="mb-1.5 flex items-center gap-2 text-xs font-medium text-zinc-600">
               <input
                 type="checkbox"
                 checked={isOffer}
@@ -274,9 +279,9 @@ export default function ProductForm({
                   setIsOffer(e.target.checked);
                   if (!e.target.checked) setSalePrice("");
                 }}
-                className="h-4 w-4 accent-violet-600"
+                className="h-3.5 w-3.5 accent-zinc-900"
               />
-              ¿En oferta?
+              En oferta
             </label>
             <input
               name="salePrice"
@@ -287,10 +292,10 @@ export default function ProductForm({
               value={salePrice}
               onChange={(e) => setSalePrice(e.target.value)}
               placeholder="12.00"
-              className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 outline-none focus:border-violet-500 disabled:bg-neutral-100 disabled:text-neutral-400"
+              className="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm tabular-nums outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900 disabled:bg-zinc-50 disabled:text-zinc-300"
             />
             {isOffer && rateNum > 0 && Number(salePrice) > 0 && (
-              <p className="mt-1 text-xs text-rose-600">
+              <p className="mt-1 text-[10px] tabular-nums text-red-500">
                 ≈ {formatBs(usdToBs(Number(salePrice), rateNum))}
               </p>
             )}
@@ -303,58 +308,57 @@ export default function ProductForm({
         )}
 
         <div>
-          <label htmlFor="description" className="mb-1.5 block text-sm font-semibold text-neutral-700">
-            Descripción <span className="font-normal text-neutral-400">(opcional)</span>
+          <label htmlFor="description" className="mb-1.5 block text-xs font-medium text-zinc-600">
+            Descripción <span className="font-normal text-zinc-400">(opcional)</span>
           </label>
           <textarea
             id="description"
             name="description"
             rows={2}
             placeholder="Color, tela, detalles…"
-            className="w-full rounded-xl border border-neutral-300 bg-white px-4 py-3 outline-none focus:border-violet-500"
+            className="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
           />
         </div>
       </section>
 
       {/* ---------- Tallas ---------- */}
       <section>
-        <h2 className="mb-2 text-sm font-semibold text-neutral-700">
+        <h2 className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-400">
           Tallas y stock
         </h2>
 
         {selectedSizes.length > 0 && (
-          <div className="mb-3 space-y-2">
+          <div className="mb-3 space-y-1.5">
             {selectedSizes.map((v) => (
               <div
                 key={v.sizeName}
-                className="flex items-center justify-between rounded-xl bg-white px-4 py-2.5 ring-1 ring-black/5"
+                className="flex items-center justify-between rounded-lg border border-zinc-200 bg-white px-3 py-2"
               >
-                <span className="font-semibold">{v.sizeName}</span>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
+                <span className="text-xs font-semibold text-zinc-900">
+                  {v.sizeName}
+                </span>
+                <div className="flex items-center gap-1.5">
+                  <span
+                    role="button"
                     onClick={() => changeStock(v.sizeName, -1)}
-                    className="h-8 w-8 rounded-lg bg-neutral-100 text-lg font-bold text-neutral-600"
+                    className="flex h-6 w-6 items-center justify-center rounded text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700"
                   >
                     −
-                  </button>
-                  <input
-                    readOnly
-                    value={v.stock}
-                    className="w-10 bg-transparent text-center font-semibold"
-                    aria-label={`Stock talla ${v.sizeName}`}
-                  />
-                  <button
-                    type="button"
+                  </span>
+                  <span className="w-7 text-center text-xs font-bold tabular-nums text-zinc-900">
+                    {v.stock}
+                  </span>
+                  <span
+                    role="button"
                     onClick={() => changeStock(v.sizeName, +1)}
-                    className="h-8 w-8 rounded-lg bg-neutral-100 text-lg font-bold text-neutral-600"
+                    className="flex h-6 w-6 items-center justify-center rounded text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700"
                   >
                     +
-                  </button>
+                  </span>
                   <button
                     type="button"
                     onClick={() => removeSize(v.sizeName)}
-                    className="ml-1 text-sm text-red-500"
+                    className="ml-1 text-[10px] font-medium text-zinc-300 transition hover:text-red-600"
                   >
                     Quitar
                   </button>
@@ -364,7 +368,7 @@ export default function ProductForm({
           </div>
         )}
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {sizes
             .filter(
               (s) =>
@@ -377,7 +381,7 @@ export default function ProductForm({
                 key={s.id}
                 type="button"
                 onClick={() => addSize(s.name)}
-                className="rounded-full bg-white px-4 py-2 text-sm font-medium ring-1 ring-neutral-300 transition active:scale-95"
+                className="rounded-md border border-zinc-200 bg-white px-3 py-1.5 text-xs font-medium text-zinc-600 transition hover:border-zinc-400 hover:bg-zinc-50 active:scale-95"
               >
                 {s.name}
               </button>
@@ -389,14 +393,15 @@ export default function ProductForm({
             value={newSize}
             onChange={(e) => setNewSize(e.target.value)}
             placeholder="Otra talla (ej: XXL)…"
-            className="flex-1 rounded-xl border border-neutral-300 bg-white px-4 py-2.5 text-sm outline-none focus:border-violet-500"
+            className="flex-1 rounded-lg border border-zinc-300 bg-white px-3.5 py-2 text-xs outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
           />
           <button
             type="button"
             onClick={() => addSize(newSize)}
             disabled={!newSize.trim()}
-            className="rounded-xl bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-40"
+            className="flex items-center gap-1 rounded-lg bg-zinc-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-zinc-800 disabled:opacity-40"
           >
+            <Plus size={12} strokeWidth={2.5} />
             Agregar
           </button>
         </div>
@@ -406,21 +411,23 @@ export default function ProductForm({
       </section>
 
       {(state.error || state.fieldErrors?.images) && (
-        <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">
+        <p className="rounded-lg bg-red-50 px-3.5 py-2.5 text-xs text-red-700">
           {state.error ?? state.fieldErrors?.images}
         </p>
       )}
 
-      <button
-        type="submit"
-        disabled={pending || uploading || photos.length === 0 || selectedSizes.length === 0}
-        className="w-full rounded-xl bg-violet-600 py-4 text-base font-semibold text-white transition active:scale-[0.98] disabled:opacity-40"
-      >
-        {pending ? "Publicando…" : "Publicar prenda"}
-      </button>
-      <p className="text-center text-xs text-neutral-400">
-        Aparece en el catálogo público al instante
-      </p>
+      <div>
+        <button
+          type="submit"
+          disabled={pending || uploading || photos.length === 0 || selectedSizes.length === 0}
+          className="w-full rounded-lg bg-zinc-900 py-3 text-sm font-medium text-white transition hover:bg-zinc-800 active:scale-[0.98] disabled:opacity-40"
+        >
+          {pending ? "Publicando…" : "Publicar prenda"}
+        </button>
+        <p className="mt-2 text-center text-[11px] text-zinc-400">
+          Aparece en el catálogo público al instante
+        </p>
+      </div>
     </form>
   );
 }

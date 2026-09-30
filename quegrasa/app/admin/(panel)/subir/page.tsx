@@ -35,12 +35,12 @@ export default async function SubirPage() {
     <div>
       <Link
         href="/admin"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-neutral-500"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-zinc-500"
       >
         ← Volver
       </Link>
-      <h1 className="mb-1 text-2xl font-bold tracking-tight">➕ Subir prenda</h1>
-      <p className="mb-6 text-sm text-neutral-500">
+      <h1 className="mb-1 text-lg font-semibold tracking-tight text-zinc-900">Subir prenda</h1>
+      <p className="mb-6 text-sm text-zinc-500">
         Completa los datos y la prenda queda publicada en el catálogo.
       </p>
       <ProductForm
