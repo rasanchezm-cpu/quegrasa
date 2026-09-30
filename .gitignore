@@ -1,3 +1,6 @@
 # evidencia de pruebas del navegador (playwright)
 .playwright-mcp/
 s2-*.png
+
+# evidencia de rediseno (ver localmente)
+redesign-*.png
