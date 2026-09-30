@@ -20,6 +20,9 @@
 # production
 /build
 
+# prisma client generado (se genera con `prisma generate`)
+/lib/generated/
+
 # misc
 .DS_Store
 *.pem
@@ -40,3 +43,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+/app/generated/prisma

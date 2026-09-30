@@ -1,0 +1,240 @@
+// ============================================================
+// QueGrasa — esquema de base de datos (Prisma 7)
+// Spec: docs/superpowers/specs/2026-09-28-quegrasa-inventario-catalogo-design.md
+// 13 tablas · Regla de oro: nada se borra físicamente (borrado lógico).
+// ============================================================
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ===== Tienda =====
+
+model Store {
+  id             String         @id @default(cuid())
+  slug           String         @unique
+  name           String
+  whatsappNumber String
+  logoUrl        String?
+  createdAt      DateTime       @default(now())
+
+  categories   Category[]
+  sizes        Size[]
+  products     Product[]
+  users        User[]
+  shipments    Shipment[]
+  subscription Subscription?
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  storeId   String
+  name      String
+  slug      String
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  store    Store      @relation(fields: [storeId], references: [id])
+  products Product[]
+
+  @@unique([storeId, slug])
+}
+
+// Diccionario de tallas por tienda (S, M, L, XL, 24..38, "Única"...)
+model Size {
+  id        String    @id @default(cuid())
+  storeId   String
+  name      String
+  sortOrder Int       @default(0)
+  createdAt DateTime  @default(now())
+
+  store    Store             @relation(fields: [storeId], references: [id])
+  variants ProductVariant[]
+
+  @@unique([storeId, name])
+}
+
+// ===== Productos =====
+
+// price/salePrice en USD; salePrice != null => es oferta visible
+model Product {
+  id          String    @id @default(cuid())
+  storeId     String
+  categoryId  String
+  name        String
+  description String?
+  price       Decimal   @db.Decimal(10, 2)
+  salePrice   Decimal?  @db.Decimal(10, 2)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  store       Store            @relation(fields: [storeId], references: [id])
+  category    Category         @relation(fields: [categoryId], references: [id])
+  images      ProductImage[]
+  variants    ProductVariant[]
+
+  @@index([storeId, isActive])
+  @@index([categoryId])
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  url       String
+  publicId  String?
+  sortOrder Int     @default(0)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+// El corazón del sistema: stock por talla
+model ProductVariant {
+  id        String @id @default(cuid())
+  productId String
+  sizeId    String
+  stock     Int    @default(0)
+
+  product   Product          @relation(fields: [productId], references: [id])
+  size      Size             @relation(fields: [sizeId], references: [id])
+  movements StockMovement[]
+  shipmentItems ShipmentItem[]
+
+  @@unique([productId, sizeId])
+}
+
+// ===== Usuarios =====
+
+enum Role {
+  WORKER
+  PLATFORM_ADMIN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  storeId      String?
+  email        String   @unique
+  name         String
+  passwordHash String
+  role         Role     @default(WORKER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+
+  store     Store?                 @relation(fields: [storeId], references: [id])
+  movements StockMovement[]
+  shipments Shipment[]
+  payments  SubscriptionPayment[]
+}
+
+// ===== Inventario y ventas =====
+
+enum MovementType {
+  SALE
+  RESTOCK
+  ADJUST
+  NEW
+}
+
+// Bitácora: ningún stock cambia sin un movimiento registrado
+model StockMovement {
+  id        String        @id @default(cuid())
+  variantId String
+  userId    String
+  type      MovementType
+  quantity  Int
+  note      String?
+  createdAt DateTime      @default(now())
+
+  variant ProductVariant @relation(fields: [variantId], references: [id])
+  user    User           @relation(fields: [userId], references: [id])
+
+  @@index([variantId, createdAt])
+}
+
+enum ShipmentStatus {
+  PENDING
+  AT_AGENCY
+}
+
+// Venta online con envío por agencia (MRW). Solo 2 estados.
+model Shipment {
+  id            String         @id @default(cuid())
+  storeId       String
+  customerName  String
+  customerPhone String?
+  status        ShipmentStatus @default(PENDING)
+  note          String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  createdById   String
+
+  store     Store          @relation(fields: [storeId], references: [id])
+  createdBy User           @relation(fields: [createdById], references: [id])
+  items     ShipmentItem[]
+
+  @@index([storeId, status])
+}
+
+model ShipmentItem {
+  id            String  @id @default(cuid())
+  shipmentId    String
+  variantId     String
+  qty           Int
+  priceSnapshot Decimal @db.Decimal(10, 2)
+
+  shipment Shipment        @relation(fields: [shipmentId], references: [id], onDelete: Cascade)
+  variant  ProductVariant @relation(fields: [variantId], references: [id])
+}
+
+// ===== Suscripción SaaS =====
+
+enum SubscriptionStatus {
+  ACTIVE
+  PAST_DUE
+  SUSPENDED
+}
+
+model Subscription {
+  id        String             @id @default(cuid())
+  storeId   String             @unique
+  status    SubscriptionStatus @default(ACTIVE)
+  paidUntil DateTime
+  updatedAt DateTime           @updatedAt
+
+  store    Store                 @relation(fields: [storeId], references: [id])
+  payments SubscriptionPayment[]
+}
+
+model SubscriptionPayment {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  amount         Decimal  @db.Decimal(10, 2)
+  periodStart    DateTime
+  periodEnd      DateTime
+  registeredById String
+  createdAt      DateTime @default(now())
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id])
+  registeredBy User        @relation(fields: [registeredById], references: [id])
+}
+
+// ===== Tasa BCV =====
+
+enum ExchangeSource {
+  BCV
+  MANUAL
+}
+
+model ExchangeRate {
+  id        String         @id @default(cuid())
+  date      DateTime       @unique @db.Date
+  rate      Decimal        @db.Decimal(14, 4)
+  source    ExchangeSource @default(BCV)
+  createdAt DateTime       @default(now())
+}
