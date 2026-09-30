@@ -14,7 +14,7 @@ async function main() {
   // ---------- Tienda ----------
   const store = await prisma.store.upsert({
     where: { slug: "quegrasa" },
-    update: {},
+    update: { whatsappNumber: process.env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? "584141234567" },
     create: {
       slug: "quegrasa",
       name: "QueGrasa",
