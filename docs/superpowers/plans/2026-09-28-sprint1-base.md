@@ -99,4 +99,4 @@
 - **S2:** CRUD prendas + fotos Cloudinary + inventario + categorías
 - **S3:** Login JWT + pantalla "Vendí" + envíos MRW + movimientos
 - **S4:** Catálogo público + filtros + bolsa WhatsApp + precio dual visible
-- **S5:** Suscripción + `/platform` + collage promocional + bloqueo + dominio + QR
+- **S5:** Suscripción + `/platform` + collage promocional + tutorial de bienvenida + bloqueo + dominio + QR

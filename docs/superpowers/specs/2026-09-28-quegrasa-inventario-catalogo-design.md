@@ -267,6 +267,8 @@ Hola QueGrasa! 👀 Me interesan estas prendas:
 | ➕ **Subir prenda** | Fotos (cámara o galería, hasta 5, reordenables) → nombre → categoría → tallas (sugeridas según categoría, con opción de crear nuevas o escribir talla libre) + stock inicial c/u → **precio en USD** (muestra el equivalente en Bs al capturar) → precio de oferta opcional → descripción → publicar. Aparece en el catálogo al instante. Genera `StockMovement(NEW)` por variante. |
 | 🏷️ **Ofertas** | Lista de todas las prendas con botón rápido para poner/quitar `salePrice`. |
 
+**Onboarding (primer uso)** — carrusel de bienvenida la primera vez que un usuario entra al panel: una tarjeta breve por función (Vendí, Envíos, Collage, Inventario, Subir prenda, Ofertas) con lenguaje sencillo, directo y en español. Botones: "Siguiente" y "Saltar". Se marca como visto por dispositivo (`localStorage`, sin tabla extra). Un botón **"❓ Ayuda"** fijo en el encabezado permite **repetir el tutorial cuando sea** — un trabajador nuevo se orienta solo, sin capacitación externa. Construido nativo (modal + tarjetas), sin librerías.
+
 **Bloqueo por suscripción** — si `paidUntil < hoy`, cualquier ruta `/admin` muestra una pantalla "Suscripción vencida, contacta al administrador" con botón de WhatsApp al número del desarrollador. El catálogo público **sigue visible** (no castiga a los clientes finales; lo que se pierde es la capacidad de actualizar, que es el servicio que se cobra).
 
 ### 5.3 Panel del proveedor `/platform` (rol `PLATFORM_ADMIN`, tú)
@@ -327,7 +329,7 @@ Cada sprint cierra con el módulo **funcionando y probado con datos reales** ant
 | **S2. Inventario** | 1-2 días | Subir prenda (fotos a Cloudinary, tallas sugeridas, talla libre, stock inicial), lista de inventario, categorías, edición de precios/ofertas | El catálogo real de QueGrasa capturado en el sistema |
 | **S3. Venta y envíos** | 1-2 días | Login JWT, pantalla "Vendí" con modo venta, **envíos online MRW** (crear con nombre del cliente + "En agencia ✓" en un toque), ajustes +/−, historial de movimientos | Trabajador descontando ventas reales y gestionando envíos pendientes en la tienda |
 | **S4. Catálogo público** | 1-2 días | Home con filtros (categoría, talla dinámica, ofertas), detalle con carrusel, bolsa WhatsApp, **precio dual USD/Bs con tasa visible**, SSR/SEO | Un cliente real pide por WhatsApp desde el catálogo |
-| **S5. SaaS + collage + pulido** | 2 días | Subscription, panel `/platform`, middleware de bloqueo, **generador de collages (Canvas 1080×1080)**, dominio, QR de mostrador, PWA, respaldos | Primer pago mensual registrado; la dueña publicando collages en su comunidad; tienda operando con el sistema |
+| **S5. SaaS + collage + pulido** | 2 días | Subscription, panel `/platform`, middleware de bloqueo, **generador de collages (Canvas 1080×1080)**, **tutorial de bienvenida (carrusel + botón Ayuda)**, dominio, QR de mostrador, PWA, respaldos | Primer pago mensual registrado; la dueña publicando collages en su comunidad; un trabajador nuevo orientándose con el tutorial; tienda operando con el sistema |
 
 **Total: 6-8 días de trabajo efectivo.**
 
@@ -353,3 +355,4 @@ Cada sprint cierra con el módulo **funcionando y probado con datos reales** ant
 8. Los precios en el catálogo y en el mensaje de WhatsApp muestran USD y Bs consistentes con la tasa del día.
 9. Un envío online se registra en menos de 30 segundos y pasa a "En agencia" con un solo toque.
 10. Un collage de 4-6 prendas con precios libres se genera y descarga en menos de 1 minuto, en formato 1080×1080 listo para estados de WhatsApp.
+11. Un trabajador nuevo entiende el flujo básico (vender y envíos) con el tutorial de bienvenida, sin capacitación externa, y puede repetirlo desde el botón de Ayuda.
