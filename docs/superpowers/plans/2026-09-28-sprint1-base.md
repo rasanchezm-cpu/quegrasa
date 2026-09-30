@@ -98,7 +98,7 @@
 
 ## Próximos sprints (se planifican igual al cerrar este)
 
-- **S2:** CRUD prendas + fotos Cloudinary + inventario + categorías
-- **S3:** Login JWT + pantalla "Vendí" + envíos MRW + movimientos
-- **S4:** Catálogo público + filtros + bolsa WhatsApp + precio dual visible
-- **S5:** Suscripción + `/platform` + collage promocional + tutorial de bienvenida + bloqueo + dominio + QR
+- [x] **S2 (30-sep-2026):** login JWT + panel protegido · subir prenda E2E (fotos firmadas a Cloudinary, tallas sugeridas/libres, precio USD/Bs en vivo) · inventario (búsqueda, stock +/−, editar precios) · ofertas (poner/quitar). Verificado E2E en local.
+- [ ] **S3:** Login ya listo · pantalla "Vendí" + envíos MRW + movimientos
+- [ ] **S4:** Catálogo público + filtros + bolsa WhatsApp + precio dual visible
+- [ ] **S5:** Suscripción + `/platform` + collage promocional + tutorial de bienvenida + bloqueo + dominio + QR
