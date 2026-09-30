@@ -1,0 +1,45 @@
+- generic [active] [ref=e1]:
+  - button "Open Next.js Dev Tools" [ref=e22] [cursor=pointer]
+  - alert [ref=e16]: Hola 👋
+  - generic [ref=e26]:
+    - banner [ref=e27]:
+      - generic [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]: 👕
+          - generic [ref=e31]: QueGrasa
+        - generic [ref=e32]:
+          - generic [ref=e33]: Trabajador de prueba
+          - button "Salir" [ref=e35]
+    - main [ref=e36]:
+      - generic [ref=e37]:
+        - heading "Hola 👋" [level=1] [ref=e38]
+        - paragraph [ref=e39]: ¿Qué vas a hacer hoy?
+        - generic [ref=e40]:
+          - generic [ref=e42]:
+            - generic [ref=e43]: 🛒
+            - generic [ref=e44]: Vendí
+            - generic [ref=e45]: Pronto
+          - generic [ref=e47]:
+            - generic [ref=e48]: 📦
+            - generic [ref=e49]: Envíos
+            - generic [ref=e50]: Pronto
+          - link "📋 Inventario" [ref=e51] [cursor=pointer]:
+            - /url: /admin/inventario
+            - generic [ref=e52]:
+              - generic [ref=e53]: 📋
+              - generic [ref=e54]: Inventario
+          - link "➕ Subir prenda" [ref=e55] [cursor=pointer]:
+            - /url: /admin/subir
+            - generic [ref=e56]:
+              - generic [ref=e57]: ➕
+              - generic [ref=e58]: Subir prenda
+          - link "🏷️ Ofertas" [ref=e59] [cursor=pointer]:
+            - /url: /admin/ofertas
+            - generic [ref=e60]:
+              - generic [ref=e61]: 🏷️
+              - generic [ref=e62]: Ofertas
+          - generic [ref=e64]:
+            - generic [ref=e65]: 🖼️
+            - generic [ref=e66]: Collage
+            - generic [ref=e67]: Pronto
+        - paragraph [ref=e68]: "💡 Inventario: ve y ajusta el stock de cada talla. Subir prenda: publica una nueva con fotos. Ofertas: pon o quita precios rebajados."
