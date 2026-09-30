@@ -99,6 +99,6 @@
 ## Próximos sprints (se planifican igual al cerrar este)
 
 - [x] **S2 (30-sep-2026):** login JWT + panel protegido · subir prenda E2E (fotos firmadas a Cloudinary, tallas sugeridas/libres, precio USD/Bs en vivo) · inventario (búsqueda, stock +/−, editar precios) · ofertas (poner/quitar). Verificado E2E en local.
-- [ ] **S3:** Login ya listo · pantalla "Vendí" + envíos MRW + movimientos
+- [x] **S3 (30-sep-2026):** pantalla "Vendí" (2 toques, modo venta, revertir última) · envíos MRW (crear desde modo venta, badge de pendientes, "En agencia ✓" en un toque, historial) · bitácora de movimientos. Verificado E2E: venta → envío María Pérez → agencia → historial.
 - [ ] **S4:** Catálogo público + filtros + bolsa WhatsApp + precio dual visible
 - [ ] **S5:** Suscripción + `/platform` + collage promocional + tutorial de bienvenida + bloqueo + dominio + QR
