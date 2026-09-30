@@ -87,12 +87,14 @@
 
 ## Definición de "Terminado" (Sprint 1)
 
-- [ ] URL pública de Vercel funciona
-- [ ] 13 tablas en Neon, migraciones aplicadas
-- [ ] Seed: tienda, categorías, tallas reales (24-38 y S-XL), admin + worker, prendas de prueba
-- [ ] Tasa BCV guardada del día con su fecha
-- [ ] `.env.example` completo; ningún secreto en git
-- [ ] Repo en GitHub privado con historial limpio
+- [x] URL pública de Vercel funciona — `quegrasa.vercel.app` (HTTP 200, 30-sep-2026)
+- [x] 13 tablas en Neon, migraciones aplicadas
+- [x] Seed: tienda, categorías, tallas reales (24-38 y S-XL), admin + worker, prendas de prueba
+- [x] Tasa BCV guardada del día con su fecha (859.06 Bs/USD, fuente BCV)
+- [x] `.env.example` completo; ningún secreto en git
+- [x] Repo en GitHub privado con historial limpio
+
+**Notas de cierre:** Prisma 7 estable con driver adapter (@prisma/adapter-pg); Next.js 16 (middleware = `proxy.ts`); cliente generado en `lib/generated` (ignorado, se regenera en cada build); author de git configurado con el noreply de la cuenta nueva para que Vercel acepte los deploys.
 
 ## Próximos sprints (se planifican igual al cerrar este)
 
