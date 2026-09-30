@@ -41,8 +41,8 @@
 ## Tarea 3 — Esquema completo (11 tablas)
 
 **Pasos:** traducir el spec (sección 4) a `prisma/schema.prisma`:
-- Modelos: `Store`, `Category`, `Size`, `Product`, `ProductImage`, `ProductVariant`, `User`, `StockMovement`, `Subscription`, `SubscriptionPayment`, `ExchangeRate`.
-- Enums: `Role` (WORKER, PLATFORM_ADMIN), `MovementType` (SALE, RESTOCK, ADJUST, NEW), `SubscriptionStatus` (ACTIVE, PAST_DUE, SUSPENDED), `ExchangeSource` (BCV, MANUAL).
+- Modelos: `Store`, `Category`, `Size`, `Product`, `ProductImage`, `ProductVariant`, `User`, `StockMovement`, `Shipment`, `ShipmentItem`, `Subscription`, `SubscriptionPayment`, `ExchangeRate`.
+- Enums: `Role` (WORKER, PLATFORM_ADMIN), `MovementType` (SALE, RESTOCK, ADJUST, NEW), `ShipmentStatus` (PENDING, AT_AGENCY), `SubscriptionStatus` (ACTIVE, PAST_DUE, SUSPENDED), `ExchangeSource` (BCV, MANUAL).
 - Relaciones y restricciones del spec: `@@unique([storeId, name])` en Size, `@@unique([productId, sizeId])` en ProductVariant, `price Decimal @db.Decimal(10,2)` y `salePrice Decimal?` en Product, `ExchangeRate.date @unique`.
 - `npx prisma migrate dev --name esquema-inicial`.
 
@@ -53,7 +53,7 @@
 **Pasos:** `prisma/seed.ts`:
 - `Store`: QueGrasa, slug `quegrasa`, `whatsappNumber` (el real, pedirlo al humano).
 - Categorías base: Parte de arriba, Parte de abajo, Jeans, Chaquetas, Vestidos/Accesorios (editable después).
-- Tallas diccionario: S, M, G, XL, XXL, 28, 30, 32, 34, 36, 38, Unitalla.
+- Tallas diccionario: **Pantalones/Jeans → 24, 26, 28, 30, 32, 34, 36, 38 · Franelas, Chaquetas, Monos → S, M, L, XL**, más "Única" para accesorios (editable/generable a mano).
 - Usuario `PLATFORM_ADMIN` (el del humano, email/contraseña por variables) + un `WORKER` de prueba.
 - `Subscription` ACTIVE con `paidUntil` +30 días (para no bloquearse durante el desarrollo).
 - 3-5 prendas de prueba con variantes y stock (para ver datos en pantalla desde el día 1).
@@ -88,8 +88,8 @@
 ## Definición de "Terminado" (Sprint 1)
 
 - [ ] URL pública de Vercel funciona
-- [ ] 11 tablas en Neon, migraciones aplicadas
-- [ ] Seed: tienda, categorías, tallas, admin + worker, prendas de prueba
+- [ ] 13 tablas en Neon, migraciones aplicadas
+- [ ] Seed: tienda, categorías, tallas reales (24-38 y S-XL), admin + worker, prendas de prueba
 - [ ] Tasa BCV guardada del día con su fecha
 - [ ] `.env.example` completo; ningún secreto en git
 - [ ] Repo en GitHub privado con historial limpio
@@ -97,6 +97,6 @@
 ## Próximos sprints (se planifican igual al cerrar este)
 
 - **S2:** CRUD prendas + fotos Cloudinary + inventario + categorías
-- **S3:** Login JWT + pantalla "Vendí" + movimientos
+- **S3:** Login JWT + pantalla "Vendí" + envíos MRW + movimientos
 - **S4:** Catálogo público + filtros + bolsa WhatsApp + precio dual visible
-- **S5:** Suscripción + `/platform` + bloqueo + dominio + QR
+- **S5:** Suscripción + `/platform` + collage promocional + bloqueo + dominio + QR

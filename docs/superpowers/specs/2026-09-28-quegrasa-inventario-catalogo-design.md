@@ -33,6 +33,8 @@ Construcción **asistida por IA**: el desarrollo se hace dirigiendo a un agente 
 - Publicar prendas con fotos desde el celular en menos de 2 minutos.
 - Descontar una venta en menos de 10 segundos (2 toques).
 - Catálogo público con filtros por categoría y talla, ofertas visibles y "carrito WhatsApp".
+- **Envíos online (MRW):** registrar pedidos de venta online y marcar con un toque si ya fueron entregados a la agencia.
+- **Collage promocional:** generar imágenes con prendas, tallas y precios libres para publicar en estados/comunidad de WhatsApp.
 - Suscripción mensual con bloqueo del panel si vence.
 - Infraestructura gratuita o de costo mínimo.
 
@@ -82,7 +84,7 @@ Construcción **asistida por IA**: el desarrollo se hace dirigiendo a un agente 
 
 ## 4. Modelo de datos
 
-11 tablas. Léase como pseudoesquema de Prisma (los tipos exactos se definen al implementar).
+13 tablas. Léase como pseudoesquema de Prisma (los tipos exactos se definen al implementar).
 
 > **MVP de una sola tienda:** el catálogo público y las Server Actions operan sobre la primera `Store` activa (seed inicial: QueGrasa). El `storeId` está presente en el esquema para que la evolución a multi-tienda no requiera migraciones de datos, solo lógica de selección (subdominio → `Store`).
 
@@ -112,11 +114,12 @@ Se administran desde el panel (crear, renombrar, reordenar, desactivar). Nunca s
 | name | "S", "M", "28", "32", "Unitalla"... |
 | sortOrder | |
 
-**Por qué existe:** las tallas dependen del tipo de prenda (jeans: 28-38; playeras: S-XL). Una tabla diccionario evita duplicados ("M" vs "m") y permite sugerencias inteligentes.
+**Por qué existe:** las tallas dependen del tipo de prenda (jeans: 24-38; franelas: S-XL). Una tabla diccionario evita duplicados ("M" vs "m") y permite sugerencias inteligentes.
 
 - Único por `(storeId, name)`.
 - Al subir una prenda se eligen tallas de la lista; si no existe, se escribe una vez y queda guardada.
-- **Sugerencia por categoría:** al elegir "Jeans" se proponen primero las tallas más usadas en productos de esa categoría (query de frecuencia simple).
+- **Sugerencia por categoría:** al elegir "Pantalones" se proponen primero las tallas más usadas en productos de esa categoría (query de frecuencia simple).
+- **Precarga inicial (tallas reales de QueGrasa):** Pantalones/Jeans → `24, 26, 28, 30, 32, 34, 36, 38` · Franelas, Chaquetas y Monos → `S, M, L, XL` · Accesorios (gorras etc.) → talla libre escrita a mano (p. ej. "Única") o detalle en la descripción.
 
 ### Product (prenda)
 | Campo | Nota |
@@ -184,6 +187,25 @@ Todos los `WORKER` tienen los mismos permisos (decisión del cliente). `PLATFORM
 | periodStart, periodEnd | mes cubierto |
 | registeredById | qué PLATFORM_ADMIN registró el pago |
 
+### Shipment (envío online) ⭐
+| Campo | Nota |
+|---|---|
+| id, storeId, createdAt | |
+| customerName | a nombre de quién se envía (para MRW) |
+| customerPhone? | opcional |
+| status | `PENDING` \| `AT_AGENCY` — **solo 2 estados** (decisión del cliente) |
+| note? | dirección de la agencia, detalles |
+
+### ShipmentItem
+| Campo | Nota |
+|---|---|
+| id, shipmentId | |
+| variantId | referencia a la variante exacta (producto + talla) |
+| qty | piezas enviadas |
+| priceSnapshot | precio USD al momento de la venta |
+
+**Flujo:** crear el envío descuenta stock de inmediato (un `StockMovement(SALE)` por ítem). Marcar "En agencia" es un toggle de un toque. No hay estado de cancelación: si un pedido se devuelve, el trabajador repone el stock con un ajuste `+qty` y nota (regla 8 del borrado lógico aplicada a envíos).
+
 ### ExchangeRate (tasa BCV) ⭐
 | Campo | Nota |
 |---|---|
@@ -213,7 +235,8 @@ Funcionamiento: un **Vercel Cron** diario consulta la tasa oficial (API pública
 **Detalle `/producto/[id]`**
 - Carrusel de fotos (swipe), nombre, descripción, precio/oferta.
 - Tallas como botones; las agotadas tachadas y no seleccionables.
-- Botón "Agregar al pedido" (requiere talla elegida).
+- **Prendas sin tallas estándar** (gorras, accesorios): la talla o detalle ("Única", "Talla libre", etc.) se muestra como **texto pequeño bajo el nombre**, sin selector — discreto en el catálogo.
+- Botón "Agregar al pedido" (requiere talla elegida cuando hay selector).
 
 **Bolsa de pedido (botón flotante)**
 - Lista de prendas elegidas (nombre, talla, precio), quitar/agregar.
@@ -233,13 +256,15 @@ Hola QueGrasa! 👀 Me interesan estas prendas:
 
 **Login** — email + contraseña. Sesión de 30 días renovable.
 
-**Inicio** — 4 botones grandes:
+**Inicio** — 6 botones grandes:
 
 | Botón | Pantalla |
 |---|---|
-| 🛒 **Vendí** | Buscador por nombre → resultados con foto y tallas → tap en la talla vendida → confirmación ✓ instantánea. Permanece en "modo venta" para descontar varias prendas seguidas, mostrando lo descontado en la sesión. Cada pieza genera `StockMovement(SALE, -1)`. Si la talla llega a 0, el botón queda deshabilitado. |
-| 📦 **Inventario** | Lista agrupada por categoría con stock por talla. Editar con botones +/− (genera `RESTOCK`/`ADJUST`), buscar, marcar producto activo/inactivo, editar precio/oferta. |
-| ➕ **Subir prenda** | Fotos (cámara o galería, hasta 5, reordenables) → nombre → categoría → tallas (sugeridas según categoría, con opción de crear nuevas) + stock inicial c/u → **precio en USD** (muestra el equivalente en Bs al capturar) → precio de oferta opcional → descripción → publicar. Aparece en el catálogo al instante. Genera `StockMovement(NEW)` por variante. |
+| 🛒 **Vendí** | Buscador por nombre → resultados con foto y tallas → tap en la talla vendida → confirmación ✓ instantánea. Permanece en "modo venta" para descontar varias prendas seguidas, mostrando lo descontado en la sesión. Cada pieza genera `StockMovement(SALE, -1)`. Si la talla llega a 0, el botón queda deshabilitado. **Al cerrar la venta, opción "Es envío online":** pide el nombre del cliente y crea un `Shipment PENDING` además de la venta. |
+| 📦 **Envíos** | Lista de envíos **pendientes** (los que hay que llevar a MRW) con botón grande de un toque **"En agencia ✓"**. Historial de ya entregados a la agencia con su fecha. Badge con la cantidad pendiente en el botón del inicio. |
+| 🖼️ **Collage** | Elegir prendas del inventario → escribir tallas disponibles y **precio a mostrar** (libre — no toca el catálogo) → se genera automáticamente una imagen cuadrada (1080×1080, ideal para estados de WhatsApp) con fotos, tallas y precios → **descargar** y compartir a estados/comunidad. Solo prendas, sin marca ni número (decisión del cliente). Se genera en el navegador con Canvas: sin backend, sin costo. |
+| 📋 **Inventario** | Lista agrupada por categoría con stock por talla. Editar con botones +/− (genera `RESTOCK`/`ADJUST`), buscar, marcar producto activo/inactivo, editar precio/oferta. |
+| ➕ **Subir prenda** | Fotos (cámara o galería, hasta 5, reordenables) → nombre → categoría → tallas (sugeridas según categoría, con opción de crear nuevas o escribir talla libre) + stock inicial c/u → **precio en USD** (muestra el equivalente en Bs al capturar) → precio de oferta opcional → descripción → publicar. Aparece en el catálogo al instante. Genera `StockMovement(NEW)` por variante. |
 | 🏷️ **Ofertas** | Lista de todas las prendas con botón rápido para poner/quitar `salePrice`. |
 
 **Bloqueo por suscripción** — si `paidUntil < hoy`, cualquier ruta `/admin` muestra una pantalla "Suscripción vencida, contacta al administrador" con botón de WhatsApp al número del desarrollador. El catálogo público **sigue visible** (no castiga a los clientes finales; lo que se pierde es la capacidad de actualizar, que es el servicio que se cobra).
@@ -265,6 +290,8 @@ Hola QueGrasa! 👀 Me interesan estas prendas:
 7. **Permisos**: `WORKER` = todas las operaciones de tienda (decisión del cliente: todos iguales). `PLATFORM_ADMIN` = suscripciones + administración de tiendas y usuarios. Sin más roles.
 8. **Borrado**: nada se borra físicamente. Productos se desactivan, trabajadores se marcan inactivos, categorías se inactivan. Los datos de inventario son la memoria de la tienda.
 9. **Precio dual USD/Bs**: los precios se administran en USD. El display en Bs usa la tasa BCV del día (`ExchangeRate` más reciente); si la fuente diaria falla, se muestra la última tasa disponible y su fecha real — nunca un cálculo inventado. La corrección manual desde `/platform` es el respaldo.
+10. **Envíos online**: crear un envío es una venta — descuenta stock en el momento con un `StockMovement(SALE)` por ítem y guarda `priceSnapshot`. Solo 2 estados: `PENDING` → `AT_AGENCY` (toggle de un toque). Sin estado de cancelación: una devolución se repone con ajuste `+qty` y nota obligatoria.
+11. **Collage promocional**: los precios y tallas escritos en el collage son **libres** y no modifican el catálogo ni el inventario. La imagen se genera en el navegador (Canvas) y se descarga al dispositivo; no pasa por el servidor.
 
 ---
 
@@ -296,13 +323,13 @@ Cada sprint cierra con el módulo **funcionando y probado con datos reales** ant
 
 | Sprint | Duración | Alcance | Objetivo verificable |
 |---|---|---|---|
-| **S1. Base** | 1 día | Proyecto Next.js + Tailwind + Prisma, esquema completo de las 11 tablas, deploy a Vercel + Neon, seed (tienda, categorías, tallas, un usuario trabajador), **tabla ExchangeRate + cron de tasa BCV** | App desplegada en internet; el esquema aplica en BD sin errores; la tasa del día se guarda |
-| **S2. Inventario** | 1-2 días | Subir prenda (fotos a Cloudinary, tallas sugeridas, stock inicial), lista de inventario, categorías, edición de precios/ofertas | El catálogo real de QueGrasa capturado en el sistema |
-| **S3. Venta** | 1 día | Login JWT, pantalla "Vendí" con modo venta, ajustes +/−, historial de movimientos | Trabajador descontando ventas reales en la tienda física |
+| **S1. Base** | 1 día | Proyecto Next.js + Tailwind + Prisma, esquema completo de las 13 tablas, deploy a Vercel + Neon, seed (tienda, categorías, tallas reales: pantalones 24-38 / S-XL, usuario trabajador), **tabla ExchangeRate + cron de tasa BCV** | App desplegada en internet; el esquema aplica en BD sin errores; la tasa del día se guarda |
+| **S2. Inventario** | 1-2 días | Subir prenda (fotos a Cloudinary, tallas sugeridas, talla libre, stock inicial), lista de inventario, categorías, edición de precios/ofertas | El catálogo real de QueGrasa capturado en el sistema |
+| **S3. Venta y envíos** | 1-2 días | Login JWT, pantalla "Vendí" con modo venta, **envíos online MRW** (crear con nombre del cliente + "En agencia ✓" en un toque), ajustes +/−, historial de movimientos | Trabajador descontando ventas reales y gestionando envíos pendientes en la tienda |
 | **S4. Catálogo público** | 1-2 días | Home con filtros (categoría, talla dinámica, ofertas), detalle con carrusel, bolsa WhatsApp, **precio dual USD/Bs con tasa visible**, SSR/SEO | Un cliente real pide por WhatsApp desde el catálogo |
-| **S5. SaaS + pulido** | 1-2 días | Subscription, panel `/platform`, middleware de bloqueo, dominio, QR de mostrador, PWA | Primer pago mensual registrado; tienda operando con el sistema |
+| **S5. SaaS + collage + pulido** | 2 días | Subscription, panel `/platform`, middleware de bloqueo, **generador de collages (Canvas 1080×1080)**, dominio, QR de mostrador, PWA, respaldos | Primer pago mensual registrado; la dueña publicando collages en su comunidad; tienda operando con el sistema |
 
-**Total: 5-7 días de trabajo efectivo.**
+**Total: 6-8 días de trabajo efectivo.**
 
 **Riesgos y mitigación**
 - *La IA genera código que no se entiende* → el spec es la fuente de verdad; el estudiante revisa cada módulo antes de aceptarlo y pide explicación de lo que no entienda; cada módulo se prueba antes de avanzar.
@@ -324,3 +351,5 @@ Cada sprint cierra con el módulo **funcionando y probado con datos reales** ant
 6. Costo operativo mensual: $0 (sin contar el dominio anual).
 7. La tasa BCV se actualiza sola cada día; si la fuente falla, la última tasa guardada sigue operando y se puede corregir a mano desde `/platform`.
 8. Los precios en el catálogo y en el mensaje de WhatsApp muestran USD y Bs consistentes con la tasa del día.
+9. Un envío online se registra en menos de 30 segundos y pasa a "En agencia" con un solo toque.
+10. Un collage de 4-6 prendas con precios libres se genera y descarga en menos de 1 minuto, en formato 1080×1080 listo para estados de WhatsApp.
