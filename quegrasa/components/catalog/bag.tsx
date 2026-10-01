@@ -93,7 +93,7 @@ export function BagButton({ rate, whatsapp }: { rate: number | null; whatsapp: s
           className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gold px-5 py-3 text-sm font-bold text-zinc-950 shadow-lg shadow-gold/20 transition active:scale-95"
         >
           <ShoppingBag size={16} strokeWidth={2.5} />
-          Ver mi pedido
+          Ver carrito
           <span className="rounded-full bg-zinc-950 px-2 py-0.5 text-[11px] font-bold text-gold">
             {bag.length}
           </span>

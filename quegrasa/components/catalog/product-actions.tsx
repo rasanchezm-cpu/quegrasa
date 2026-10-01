@@ -72,12 +72,12 @@ export default function ProductActions({
         {added ? (
           <>
             <Check size={16} strokeWidth={2.5} />
-            ¡Agregado!
+            ¡Agregado al carrito!
           </>
         ) : (
           <>
             <ShoppingBag size={16} strokeWidth={2.5} />
-            Agregar a mi pedido
+            Añadir al carrito
           </>
         )}
       </button>
