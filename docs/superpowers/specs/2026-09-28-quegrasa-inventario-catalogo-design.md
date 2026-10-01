@@ -34,7 +34,7 @@ Construcción **asistida por IA**: el desarrollo se hace dirigiendo a un agente 
 - Descontar una venta en menos de 10 segundos (2 toques).
 - Catálogo público con filtros por categoría y talla, ofertas visibles y "carrito WhatsApp".
 - **Envíos online (MRW):** registrar pedidos de venta online y marcar con un toque si ya fueron entregados a la agencia.
-- **Collage promocional:** generar imágenes con prendas, tallas y precios libres para publicar en estados/comunidad de WhatsApp.
+- ~~**Collage promocional:**~~ **descartado por decisión del cliente (01-oct-2026)**.
 - Suscripción mensual con bloqueo del panel si vence.
 - Infraestructura gratuita o de costo mínimo.
 
@@ -262,12 +262,11 @@ Hola QueGrasa! 👀 Me interesan estas prendas:
 |---|---|
 | 🛒 **Vendí** | Buscador por nombre → resultados con foto y tallas → tap en la talla vendida → confirmación ✓ instantánea. Permanece en "modo venta" para descontar varias prendas seguidas, mostrando lo descontado en la sesión. Cada pieza genera `StockMovement(SALE, -1)`. Si la talla llega a 0, el botón queda deshabilitado. **Al cerrar la venta, opción "Es envío online":** pide el nombre del cliente y crea un `Shipment PENDING` además de la venta. |
 | 📦 **Envíos** | Lista de envíos **pendientes** (los que hay que llevar a MRW) con botón grande de un toque **"En agencia ✓"**. Historial de ya entregados a la agencia con su fecha. Badge con la cantidad pendiente en el botón del inicio. |
-| 🖼️ **Collage** | Elegir prendas del inventario → escribir tallas disponibles y **precio a mostrar** (libre — no toca el catálogo) → se genera automáticamente una imagen cuadrada (1080×1080, ideal para estados de WhatsApp) con fotos, tallas y precios → **descargar** y compartir a estados/comunidad. Solo prendas, sin marca ni número (decisión del cliente). Se genera en el navegador con Canvas: sin backend, sin costo. |
 | 📋 **Inventario** | Lista agrupada por categoría con stock por talla. Editar con botones +/− (genera `RESTOCK`/`ADJUST`), buscar, marcar producto activo/inactivo, editar precio/oferta. |
 | ➕ **Subir prenda** | Fotos (cámara o galería, hasta 5, reordenables) → nombre → categoría → tallas (sugeridas según categoría, con opción de crear nuevas o escribir talla libre) + stock inicial c/u → **precio en USD** (muestra el equivalente en Bs al capturar) → precio de oferta opcional → descripción → publicar. Aparece en el catálogo al instante. Genera `StockMovement(NEW)` por variante. |
 | 🏷️ **Ofertas** | Lista de todas las prendas con botón rápido para poner/quitar `salePrice`. |
 
-**Onboarding (primer uso)** — carrusel de bienvenida la primera vez que un usuario entra al panel: una tarjeta breve por función (Vendí, Envíos, Collage, Inventario, Subir prenda, Ofertas) con lenguaje sencillo, directo y en español. Botones: "Siguiente" y "Saltar". Se marca como visto por dispositivo (`localStorage`, sin tabla extra). Un botón **"❓ Ayuda"** fijo en el encabezado permite **repetir el tutorial cuando sea** — un trabajador nuevo se orienta solo, sin capacitación externa. Construido nativo (modal + tarjetas), sin librerías.
+**Onboarding (primer uso)** — carrusel de bienvenida la primera vez que un usuario entra al panel: una tarjeta breve por función (Vendido, Envíos, Inventario, Subir prenda, Ofertas) con lenguaje sencillo, directo y en español. Botones: "Siguiente" y "Saltar". Se marca como visto por dispositivo (`localStorage`, sin tabla extra). Un botón **"❓ Ayuda"** fijo en el encabezado permite **repetir el tutorial cuando sea** — un trabajador nuevo se orienta solo, sin capacitación externa. Construido nativo (modal + tarjetas), sin librerías.
 
 **Bloqueo por suscripción** — si `paidUntil < hoy`, cualquier ruta `/admin` muestra una pantalla "Suscripción vencida, contacta al administrador" con botón de WhatsApp al número del desarrollador. El catálogo público **sigue visible** (no castiga a los clientes finales; lo que se pierde es la capacidad de actualizar, que es el servicio que se cobra).
 
@@ -293,7 +292,6 @@ Hola QueGrasa! 👀 Me interesan estas prendas:
 8. **Borrado**: nada se borra físicamente. Productos se desactivan, trabajadores se marcan inactivos, categorías se inactivan. Los datos de inventario son la memoria de la tienda.
 9. **Precio dual USD/Bs**: los precios se administran en USD. El display en Bs usa la tasa BCV del día (`ExchangeRate` más reciente); si la fuente diaria falla, se muestra la última tasa disponible y su fecha real — nunca un cálculo inventado. La corrección manual desde `/platform` es el respaldo.
 10. **Envíos online**: crear un envío es una venta — descuenta stock en el momento con un `StockMovement(SALE)` por ítem y guarda `priceSnapshot`. Solo 2 estados: `PENDING` → `AT_AGENCY` (toggle de un toque). Sin estado de cancelación: una devolución se repone con ajuste `+qty` y nota obligatoria.
-11. **Collage promocional**: los precios y tallas escritos en el collage son **libres** y no modifican el catálogo ni el inventario. La imagen se genera en el navegador (Canvas) y se descarga al dispositivo; no pasa por el servidor.
 
 ---
 
@@ -354,5 +352,4 @@ Cada sprint cierra con el módulo **funcionando y probado con datos reales** ant
 7. La tasa BCV se actualiza sola cada día; si la fuente falla, la última tasa guardada sigue operando y se puede corregir a mano desde `/platform`.
 8. Los precios en el catálogo y en el mensaje de WhatsApp muestran USD y Bs consistentes con la tasa del día.
 9. Un envío online se registra en menos de 30 segundos y pasa a "En agencia" con un solo toque.
-10. Un collage de 4-6 prendas con precios libres se genera y descarga en menos de 1 minuto, en formato 1080×1080 listo para estados de WhatsApp.
 11. Un trabajador nuevo entiende el flujo básico (vender y envíos) con el tutorial de bienvenida, sin capacitación externa, y puede repetirlo desde el botón de Ayuda.

@@ -9,7 +9,6 @@ import {
   ClipboardList,
   PlusCircle,
   Tag,
-  LayoutGrid,
   ChevronRight,
   History,
 } from "lucide-react";
@@ -61,13 +60,6 @@ export default async function AdminHome() {
       icon: Tag,
       label: "Ofertas",
       desc: "Pon o quita precios rebajados",
-    },
-    {
-      href: "/admin/collage",
-      icon: LayoutGrid,
-      label: "Collage",
-      desc: "Imagen promocional para estados",
-      badge: -1, // pronto
     },
   ];
 

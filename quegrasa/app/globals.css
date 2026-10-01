@@ -1,6 +1,9 @@
 @import "tailwindcss";
 
+/* Herramienta de trabajo: siempre modo claro, sin importar el ajuste
+   del sistema. Evita textos blancos heredados en celulares con dark mode. */
 :root {
+  color-scheme: light;
   --background: #ffffff;
   --foreground: #171717;
 }
@@ -17,13 +20,6 @@
   --color-gold: #d3ab2c;
   --color-gold-dark: #b28d1c;
   --color-gold-soft: #f6ecc9;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
 }
 
 body {
