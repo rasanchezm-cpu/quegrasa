@@ -38,6 +38,8 @@ async function main() {
     ["Chaquetas", "chaquetas", 4],
     ["Monos", "monos", 5],
     ["Accesorios", "accesorios", 6],
+    ["Hombre", "hombre", 7],
+    ["Mujer", "mujer", 8],
   ];
   const categories: Record<string, string> = {};
   for (const [name, slug, sortOrder] of categoryDefs) {
@@ -54,7 +56,7 @@ async function main() {
     // Pantalones / jeans
     "24", "26", "28", "30", "32", "34", "36", "38",
     // Franelas, chaquetas y monos
-    "S", "M", "L", "XL",
+    "S", "M", "L", "XL", "XXL",
     // Accesorios (gorras etc.)
     "Única",
   ];
@@ -102,7 +104,7 @@ async function main() {
   type SeedVariant = [string, number]; // [talla, stock]
   const products: {
     name: string;
-    categorySlug: string;
+    categorySlugs: string[];
     price: number;
     salePrice?: number;
     description?: string;
@@ -110,21 +112,21 @@ async function main() {
   }[] = [
     {
       name: "Jean recto azul",
-      categorySlug: "jeans",
+      categorySlugs: ["jeans", "parte-abajo"],
       price: 18,
       description: "Jeans recto de mezclilla azul, tiro alto.",
       variants: [["26", 2], ["28", 3], ["30", 4], ["32", 1], ["34", 2]],
     },
     {
       name: "Franela negra oversize",
-      categorySlug: "parte-arriba",
+      categorySlugs: ["parte-arriba", "mujer"],
       price: 12,
       description: "Franela oversize de algodón, color negro.",
       variants: [["S", 3], ["M", 5], ["L", 4], ["XL", 2]],
     },
     {
       name: "Chaqueta denim clara",
-      categorySlug: "chaquetas",
+      categorySlugs: ["chaquetas", "parte-arriba", "mujer"],
       price: 25,
       salePrice: 20,
       description: "Chaqueta de denim en tono claro.",
@@ -132,14 +134,14 @@ async function main() {
     },
     {
       name: "Mono lila",
-      categorySlug: "monos",
+      categorySlugs: ["monos", "parte-abajo"],
       price: 22,
       description: "Mono (overol) en color lila.",
       variants: [["S", 1], ["M", 2], ["L", 3]],
     },
     {
       name: "Gorra roja",
-      categorySlug: "accesorios",
+      categorySlugs: ["accesorios"],
       price: 8,
       description: "Gorra ajustable, color rojo. Talla única.",
       variants: [["Única", 6]],
@@ -155,7 +157,12 @@ async function main() {
     const created = await prisma.product.create({
       data: {
         storeId: store.id,
-        categoryId: categories[p.categorySlug],
+        productCategories: {
+          create: p.categorySlugs.map((slug, i) => ({
+            categoryId: categories[slug],
+            sortOrder: i,
+          })),
+        },
         name: p.name,
         description: p.description,
         price: p.price,

@@ -16,7 +16,10 @@ import { requireSession } from "@/lib/auth";
 
 const ProductSchema = z.object({
   name: z.string().trim().min(2, "El nombre es obligatorio").max(80),
-  categoryId: z.string().min(1, "Elige una categoría"),
+  categories: z
+    .array(z.string().min(1))
+    .min(1, "Elige al menos una categoría")
+    .max(4, "Máximo 4 categorías"),
   price: z.coerce.number().positive("El precio debe ser mayor a 0"),
   salePrice: z.coerce
     .number()
@@ -90,7 +93,7 @@ export async function createProduct(
   try {
     parsed = ProductSchema.parse({
       name: formData.get("name"),
-      categoryId: formData.get("categoryId"),
+      categories: JSON.parse(String(formData.get("categories") ?? "[]")),
       price: formData.get("price"),
       salePrice:
         formData.get("salePrice") === "" || formData.get("salePrice") === null
@@ -124,21 +127,29 @@ export async function createProduct(
 
   const store = await getStore();
 
-  // La categoría debe pertenecer a la tienda
-  const category = await prisma.category.findFirst({
-    where: { id: parsed.categoryId, storeId: store.id, isActive: true },
+  // Todas las categorías deben pertenecer a la tienda
+  const validCategories = await prisma.category.findMany({
+    where: { storeId: store.id, isActive: true, id: { in: parsed.categories } },
   });
-  if (!category) return { error: "Categoría inválida" };
+  if (validCategories.length !== parsed.categories.length) {
+    return { error: "Categoría inválida" };
+  }
 
   await prisma.$transaction(async (tx) => {
     const product = await tx.product.create({
       data: {
         storeId: store.id,
-        categoryId: category.id,
         name: parsed.name,
         description: parsed.description || null,
         price: parsed.price,
         salePrice: parsed.salePrice ?? null,
+        productCategories: {
+          // el orden de selección se conserva: la primera es la primaria
+          create: parsed.categories.map((categoryId, i) => ({
+            categoryId,
+            sortOrder: i,
+          })),
+        },
         images: {
           create: parsed.images.map((img, i) => ({
             url: img.url,

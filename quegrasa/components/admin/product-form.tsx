@@ -41,6 +41,7 @@ export default function ProductForm({
   const [isOffer, setIsOffer] = useState(false);
   const [selectedSizes, setSelectedSizes] = useState<Variant[]>([]);
   const [newSize, setNewSize] = useState("");
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const rateNum = rate ?? 0;
   const priceNum = Number(price) || 0;
@@ -127,6 +128,7 @@ export default function ProductForm({
 
   const onSubmit = (formData: FormData) => {
     formData.set("images", JSON.stringify(photos));
+    formData.set("categories", JSON.stringify(selectedCategories));
     formData.set(
       "variants",
       JSON.stringify(selectedSizes.filter((v) => v.stock > 0)),
@@ -226,25 +228,36 @@ export default function ProductForm({
         </div>
 
         <div>
-          <label htmlFor="categoryId" className="mb-1.5 block text-xs font-medium text-zinc-600">
-            Categoría
-          </label>
-          <select
-            id="categoryId"
-            name="categoryId"
-            required
-            defaultValue=""
-            className="w-full rounded-lg border border-zinc-300 bg-white px-3.5 py-2.5 text-sm outline-none transition focus:border-zinc-900 focus:ring-1 focus:ring-zinc-900"
-          >
-            <option value="" disabled>
-              Elige una categoría…
-            </option>
-            {categories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <span className="mb-1.5 block text-xs font-medium text-zinc-600">
+            Categorías <span className="text-zinc-400">(toca todas las que apliquen)</span>
+          </span>
+          <div className="flex flex-wrap gap-1.5">
+            {categories.map((c) => {
+              const sel = selectedCategories.includes(c.id);
+              return (
+                <button
+                  key={c.id}
+                  type="button"
+                  onClick={() =>
+                    setSelectedCategories((prev) =>
+                      sel ? prev.filter((x) => x !== c.id) : [...prev, c.id],
+                    )
+                  }
+                  className={`rounded-full px-3.5 py-2 text-xs font-semibold transition active:scale-95 ${
+                    sel
+                      ? "bg-zinc-900 text-gold"
+                      : "border border-zinc-300 bg-white text-zinc-600 hover:border-zinc-500"
+                  }`}
+                >
+                  {sel ? "✓ " : ""}
+                  {c.name}
+                </button>
+              );
+            })}
+          </div>
+          {state.fieldErrors?.categories && (
+            <p className="mt-1 text-xs text-red-600">{state.fieldErrors.categories}</p>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -419,7 +432,13 @@ export default function ProductForm({
       <div>
         <button
           type="submit"
-          disabled={pending || uploading || photos.length === 0 || selectedSizes.length === 0}
+          disabled={
+            pending ||
+            uploading ||
+            photos.length === 0 ||
+            selectedSizes.length === 0 ||
+            selectedCategories.length === 0
+          }
           className="w-full rounded-lg bg-gold py-3 text-sm font-bold text-zinc-950 transition hover:bg-gold-dark active:scale-[0.98] disabled:opacity-40"
         >
           {pending ? "Publicando…" : "Publicar prenda"}

@@ -34,7 +34,10 @@ export default async function ProductoPage({
           include: { size: { select: { name: true } } },
           orderBy: { size: { sortOrder: "asc" } },
         },
-        category: { select: { name: true } },
+        productCategories: {
+          orderBy: { sortOrder: "asc" },
+          include: { category: { select: { name: true } } },
+        },
       },
     }),
     getLatestRate(),
@@ -60,7 +63,9 @@ export default async function ProductoPage({
             Catálogo
           </Link>
           <span className="text-[10px] uppercase tracking-wider text-zinc-600">
-            {product.category.name}
+            {product.productCategories
+              .map((pc) => pc.category.name)
+              .join(" · ")}
           </span>
         </div>
       </header>

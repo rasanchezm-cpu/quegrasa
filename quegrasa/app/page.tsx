@@ -47,7 +47,9 @@ export default async function CatalogoPage({
       storeId: store.id,
       isActive: true,
       name: q ? { contains: q, mode: "insensitive" } : undefined,
-      categoryId: activeCategory?.id,
+      productCategories: activeCategory
+        ? { some: { categoryId: activeCategory.id } }
+        : undefined,
       variants: { some: { stock: { gt: 0 } } }, // regla: solo con stock
     },
     orderBy: { createdAt: "desc" },

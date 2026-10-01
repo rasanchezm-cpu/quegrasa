@@ -22,7 +22,10 @@ export default async function InventarioPage() {
       where: { storeId: store.id },
       orderBy: { createdAt: "desc" },
       include: {
-        category: { select: { name: true } },
+        productCategories: {
+          orderBy: { sortOrder: "asc" },
+          include: { category: { select: { name: true } } },
+        },
         images: { orderBy: { sortOrder: "asc" }, take: 1 },
         variants: {
           include: { size: { select: { name: true } } },
@@ -44,7 +47,9 @@ export default async function InventarioPage() {
     salePrice: p.salePrice != null ? Number(p.salePrice) : null,
     isActive: p.isActive,
     imageUrl: p.images[0] ? thumb(p.images[0].url) : null,
-    categoryName: p.category.name,
+    categoryName:
+      p.productCategories[0]?.category.name ?? "Sin categoría",
+    categoryNames: p.productCategories.map((pc) => pc.category.name),
     variants: p.variants.map((v) => ({
       id: v.id,
       sizeName: v.size.name,

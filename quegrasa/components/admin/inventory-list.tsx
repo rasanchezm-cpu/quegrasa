@@ -28,6 +28,7 @@ export type InventoryProduct = {
   isActive: boolean;
   imageUrl: string | null;
   categoryName: string;
+  categoryNames: string[];
   variants: InventoryVariant[];
 };
 
@@ -220,6 +221,11 @@ export default function InventoryList({
                       <p className="truncate text-xs font-medium text-zinc-900">
                         {p.name}
                       </p>
+                      {p.categoryNames.length > 1 && (
+                        <p className="truncate text-[9px] text-zinc-400">
+                          {p.categoryNames.join(" · ")}
+                        </p>
+                      )}
                       <div className="mt-0.5 flex items-center justify-between">
                         <span
                           className={`text-xs font-semibold tabular-nums ${
