@@ -7,6 +7,7 @@ import { Search, SearchX } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getLatestRate } from "@/lib/exchange";
 import ProductCard, { type CatalogProduct } from "@/components/catalog/product-card";
+import { BagButton } from "@/components/catalog/bag";
 
 export const dynamic = "force-dynamic";
 
@@ -188,6 +189,12 @@ export default async function CatalogoPage({
           </p>
         )}
       </div>
+
+      {/* Bolsa de pedido (flotante, WhatsApp) */}
+      <BagButton
+        rate={rateInfo?.rate ?? null}
+        whatsapp={store.whatsappNumber}
+      />
     </main>
   );
 }
