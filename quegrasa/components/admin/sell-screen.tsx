@@ -201,7 +201,7 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
                       className={`min-w-10 rounded-md px-2 py-1.5 text-xs font-semibold transition active:scale-95 ${
                         v.stock === 0
                           ? "cursor-not-allowed bg-zinc-50 text-zinc-300 line-through"
-                          : "bg-zinc-900 text-white hover:bg-zinc-700"
+                          : "bg-gold text-zinc-950 hover:bg-gold-dark"
                       }`}
                       title={v.stock === 0 ? "Agotada" : `Quedan ${v.stock}`}
                     >
@@ -257,7 +257,7 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
               <button
                 type="button"
                 onClick={() => setShipping(true)}
-                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-amber-600 py-2.5 text-xs font-semibold text-white transition hover:bg-amber-500 active:scale-[0.98]"
+                className="flex flex-1 items-center justify-center gap-1.5 rounded-lg border border-gold bg-white py-2.5 text-xs font-bold text-gold-dark transition hover:bg-gold-soft active:scale-[0.98]"
               >
                 <PackageCheck size={14} strokeWidth={2} />
                 Enviar por MRW
@@ -265,7 +265,7 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
               <button
                 type="button"
                 onClick={finishLocal}
-                className="flex-1 rounded-lg bg-zinc-900 py-2.5 text-xs font-semibold text-white transition hover:bg-zinc-800 active:scale-[0.98]"
+                className="flex-1 rounded-lg bg-gold py-2.5 text-xs font-bold text-zinc-950 transition hover:bg-gold-dark active:scale-[0.98]"
               >
                 Listo
               </button>
@@ -311,7 +311,7 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
                 type="button"
                 onClick={confirmShipping}
                 disabled={shipBusy || customerName.trim().length < 2}
-                className="flex-1 rounded-lg bg-amber-600 py-2.5 text-xs font-semibold text-white transition hover:bg-amber-500 disabled:opacity-40"
+                className="flex-1 rounded-lg bg-gold py-2.5 text-xs font-bold text-zinc-950 transition hover:bg-gold-dark disabled:opacity-40"
               >
                 {shipBusy ? "Creando…" : "Crear envío"}
               </button>

@@ -12,6 +12,13 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Identidad de marca QueGrasa: negro con dorado */
+@theme {
+  --color-gold: #d3ab2c;
+  --color-gold-dark: #b28d1c;
+  --color-gold-soft: #f6ecc9;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;

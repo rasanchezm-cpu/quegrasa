@@ -32,9 +32,9 @@ export default async function AdminHome() {
     badge?: number;
   }[] = [
     {
-      href: "/admin/vendi",
+      href: "/admin/vendido",
       icon: ShoppingCart,
-      label: "Vendí",
+      label: "Vendido",
       desc: "Descuenta una venta en dos toques",
     },
     {
@@ -88,7 +88,7 @@ export default async function AdminHome() {
                 i > 0 ? "border-t border-zinc-100" : ""
               } ${soon ? "opacity-45" : ""}`}
             >
-              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-zinc-700">
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zinc-950 text-gold">
                 <Icon size={18} strokeWidth={1.8} />
               </span>
               <span className="min-w-0 flex-1">
@@ -106,7 +106,7 @@ export default async function AdminHome() {
               ) : (
                 <>
                   {it.badge != null && it.badge > 0 && (
-                    <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-amber-500 px-1.5 text-[11px] font-semibold tabular-nums text-white">
+                    <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-gold px-1.5 text-[11px] font-bold tabular-nums text-zinc-950">
                       {it.badge}
                     </span>
                   )}

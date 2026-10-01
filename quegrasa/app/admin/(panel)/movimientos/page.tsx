@@ -5,7 +5,7 @@ import { prisma } from "@/lib/db";
 export const dynamic = "force-dynamic";
 
 const TYPE_LABEL: Record<string, { label: string; cls: string }> = {
-  SALE: { label: "Venta", cls: "bg-sky-50 text-sky-700" },
+  SALE: { label: "Venta", cls: "bg-gold/20 text-gold-dark" },
   RESTOCK: { label: "Reabasto", cls: "bg-emerald-50 text-emerald-700" },
   ADJUST: { label: "Ajuste", cls: "bg-amber-50 text-amber-700" },
   NEW: { label: "Nueva", cls: "bg-violet-50 text-violet-700" },

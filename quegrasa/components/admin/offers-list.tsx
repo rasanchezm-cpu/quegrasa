@@ -64,7 +64,7 @@ export default function OffersList({ products }: { products: OfferProduct[] }) {
         <article
           key={p.id}
           className={`rounded-xl border bg-white p-3 ${
-            p.salePrice ? "border-amber-300 bg-amber-50/30" : "border-zinc-200"
+            p.salePrice ? "border-gold/50" : "border-zinc-200"
           }`}
         >
           <div className="flex items-center justify-between gap-3">
@@ -112,7 +112,7 @@ export default function OffersList({ products }: { products: OfferProduct[] }) {
                 <button
                   type="submit"
                   disabled={savingId === p.id || busy}
-                  className="flex items-center gap-1 rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs font-medium text-white transition hover:bg-zinc-800 disabled:opacity-40"
+                  className="flex items-center gap-1 rounded-md bg-gold px-2.5 py-1.5 text-xs font-bold text-zinc-950 transition hover:bg-gold-dark disabled:opacity-40"
                 >
                   <Tag size={12} strokeWidth={2.5} />
                   Ofertar

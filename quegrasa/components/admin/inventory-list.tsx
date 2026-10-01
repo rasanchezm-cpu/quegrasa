@@ -295,7 +295,7 @@ export default function InventoryList({
                       <button
                         type="submit"
                         disabled={savingId === p.id || busy}
-                        className="mb-0.5 rounded-md bg-zinc-900 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-zinc-800 disabled:opacity-40"
+                        className="mb-0.5 rounded-md bg-gold px-3 py-1.5 text-xs font-bold text-zinc-950 transition hover:bg-gold-dark disabled:opacity-40"
                       >
                         {savingId === p.id ? "Guardando…" : "Guardar"}
                       </button>

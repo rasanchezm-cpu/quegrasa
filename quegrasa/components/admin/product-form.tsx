@@ -146,7 +146,7 @@ export default function ProductForm({
         </p>
         <button
           onClick={() => router.push("/admin/inventario")}
-          className="mt-5 rounded-lg bg-zinc-900 px-4 py-2.5 text-xs font-medium text-white transition hover:bg-zinc-800"
+          className="mt-5 rounded-lg bg-gold px-4 py-2.5 text-xs font-bold text-zinc-950 transition hover:bg-gold-dark"
         >
           Ir al inventario
         </button>
@@ -399,7 +399,7 @@ export default function ProductForm({
             type="button"
             onClick={() => addSize(newSize)}
             disabled={!newSize.trim()}
-            className="flex items-center gap-1 rounded-lg bg-zinc-900 px-3 py-2 text-xs font-medium text-white transition hover:bg-zinc-800 disabled:opacity-40"
+            className="flex items-center gap-1 rounded-lg bg-gold px-3 py-2 text-xs font-bold text-zinc-950 transition hover:bg-gold-dark disabled:opacity-40"
           >
             <Plus size={12} strokeWidth={2.5} />
             Agregar
@@ -420,7 +420,7 @@ export default function ProductForm({
         <button
           type="submit"
           disabled={pending || uploading || photos.length === 0 || selectedSizes.length === 0}
-          className="w-full rounded-lg bg-zinc-900 py-3 text-sm font-medium text-white transition hover:bg-zinc-800 active:scale-[0.98] disabled:opacity-40"
+          className="w-full rounded-lg bg-gold py-3 text-sm font-bold text-zinc-950 transition hover:bg-gold-dark active:scale-[0.98] disabled:opacity-40"
         >
           {pending ? "Publicando…" : "Publicar prenda"}
         </button>

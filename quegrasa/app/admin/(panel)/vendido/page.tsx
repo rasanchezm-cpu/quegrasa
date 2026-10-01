@@ -1,11 +1,11 @@
-// "Vendí" — la operación diaria: buscar, tap en talla, listo.
+// "Vendido" — la operación diaria: buscar, tap en talla, descuento.
 import Link from "next/link";
 import { prisma } from "@/lib/db";
 import SellScreen, { type SellProduct } from "@/components/admin/sell-screen";
 
 export const dynamic = "force-dynamic";
 
-export default async function VendiPage() {
+export default async function VendidoPage() {
   const store = await prisma.store.findFirst({ orderBy: { createdAt: "asc" } });
   if (!store) {
     return (
@@ -50,13 +50,15 @@ export default async function VendiPage() {
     <div className="pb-28">
       <Link
         href="/admin"
-        className="mb-4 inline-flex items-center gap-1 text-sm text-zinc-500"
+        className="mb-4 inline-flex items-center gap-1 text-sm text-zinc-500 transition hover:text-zinc-900"
       >
         ← Volver
       </Link>
-      <h1 className="mb-1 text-lg font-semibold tracking-tight text-zinc-900">Vendí</h1>
-      <p className="mb-5 text-sm text-zinc-500">
-        Busca la prenda y toca la talla que se vendió. 2 toques y listo.
+      <h1 className="text-lg font-semibold tracking-tight text-zinc-900">
+        Vendido
+      </h1>
+      <p className="mt-0.5 mb-5 text-sm text-zinc-500">
+        Busca la prenda y toca la talla que se vendió — 2 toques.
       </p>
       <SellScreen products={products} />
     </div>

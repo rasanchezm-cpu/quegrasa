@@ -27,7 +27,7 @@ export default function AgencyButton({ shipmentId }: { shipmentId: string }) {
       type="button"
       onClick={click}
       disabled={busy}
-      className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-amber-600 py-2.5 text-xs font-semibold text-white transition hover:bg-amber-500 active:scale-[0.98] disabled:opacity-50"
+      className="flex w-full items-center justify-center gap-1.5 rounded-lg bg-gold py-2.5 text-xs font-bold text-zinc-950 transition hover:bg-gold-dark active:scale-[0.98] disabled:opacity-50"
     >
       <Check size={14} strokeWidth={2.5} />
       {busy ? "Actualizando…" : "Entregado en agencia"}

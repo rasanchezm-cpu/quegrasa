@@ -15,18 +15,18 @@ export default async function PanelLayout({
 
   return (
     <div className="min-h-dvh bg-zinc-50">
-      <header className="sticky top-0 z-10 border-b border-zinc-200 bg-white">
+      <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950">
         <div className="mx-auto flex h-13 max-w-lg items-center justify-between px-4">
-          <span className="text-sm font-semibold tracking-tight text-zinc-900">
+          <span className="text-sm font-semibold tracking-tight text-gold">
             QueGrasa
           </span>
           <div className="flex items-center gap-2">
-            <span className="text-xs text-zinc-400">{session.name}</span>
+            <span className="text-xs text-zinc-500">{session.name}</span>
             <form action={logout}>
               <button
                 type="submit"
                 title="Cerrar sesión"
-                className="rounded-md p-1.5 text-zinc-400 transition hover:bg-zinc-100 hover:text-zinc-700"
+                className="rounded-md p-1.5 text-zinc-500 transition hover:bg-zinc-800 hover:text-zinc-200"
               >
                 <LogOut size={16} strokeWidth={2} />
               </button>
