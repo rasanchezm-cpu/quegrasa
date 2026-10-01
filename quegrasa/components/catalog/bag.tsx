@@ -62,16 +62,23 @@ export function BagButton({ rate, whatsapp }: { rate: number | null; whatsapp: s
   const total = bag.reduce((s, i) => s + i.price, 0);
 
   const sendToWhatsApp = () => {
+    // Formato aireado para WhatsApp: cada prenda en su bloque,
+    // nombre en negrita (*texto*), precios con Bs debajo.
     const lines = bag.map(
       (i, idx) =>
-        `${idx + 1}. ${i.name} — Talla ${i.sizeName} — $${i.price.toFixed(2)}${
-          rate && rate > 0 ? ` (Bs ${(usdToBs(i.price, rate)).toLocaleString("es-VE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })})` : ""
-        }`,
+        `\n${idx + 1}. *${i.name}*\n` +
+        `Talla ${i.sizeName} — $${i.price.toFixed(2)}` +
+        (rate && rate > 0
+          ? ` (Bs ${(usdToBs(i.price, rate)).toLocaleString("es-VE", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })})`
+          : ""),
     );
     const msg =
       `Hola QueGrasa! 👀 Me interesan estas prendas:\n` +
       lines.join("\n") +
-      `\n¿Siguen disponibles?`;
+      `\n\n¿Siguen disponibles?`;
     const url = `https://wa.me/${whatsapp}?text=${encodeURIComponent(msg)}`;
     window.open(url, "_blank");
   };
