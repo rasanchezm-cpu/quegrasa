@@ -18,7 +18,11 @@ export default async function OfertasPage() {
 
   const [rows, rateInfo] = await Promise.all([
     prisma.product.findMany({
-      where: { storeId: store.id, isActive: true },
+      where: {
+        storeId: store.id,
+        isActive: true,
+        variants: { some: { stock: { gt: 0 } } }, // agotadas no se ofertan
+      },
       orderBy: [{ salePrice: { sort: "desc", nulls: "last" } }, { createdAt: "desc" }],
       select: {
         id: true,

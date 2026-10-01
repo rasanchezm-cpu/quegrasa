@@ -192,22 +192,35 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
                   ${(p.salePrice ?? p.price).toFixed(2)}
                 </p>
                 <div className="mt-1.5 flex flex-wrap gap-1">
-                  {p.variants.map((v) => (
-                    <button
-                      key={v.id}
-                      type="button"
-                      disabled={v.stock === 0 || busy}
-                      onClick={() => tapTalla(p, v)}
-                      className={`min-w-10 rounded-md px-2 py-1.5 text-xs font-semibold transition active:scale-95 ${
-                        v.stock === 0
-                          ? "cursor-not-allowed bg-zinc-50 text-zinc-300 line-through"
-                          : "bg-gold text-zinc-950 hover:bg-gold-dark"
-                      }`}
-                      title={v.stock === 0 ? "Agotada" : `Quedan ${v.stock}`}
-                    >
-                      {v.sizeName}
-                    </button>
-                  ))}
+                  {p.variants.map((v) => {
+                    const elegida = sold.some((s) => s.variantId === v.id);
+                    return (
+                      <button
+                        key={v.id}
+                        type="button"
+                        disabled={v.stock === 0 || busy}
+                        onClick={() => tapTalla(p, v)}
+                        title={v.stock === 0 ? "Agotada" : `Toca para vender — quedan ${v.stock}`}
+                        className={`flex min-w-11 items-center justify-center gap-1 rounded-md px-2 py-1.5 text-xs font-semibold transition active:scale-95 ${
+                          v.stock === 0
+                            ? "cursor-not-allowed bg-zinc-50 text-zinc-300 line-through"
+                            : elegida
+                              ? "bg-zinc-300 text-zinc-500"
+                              : "bg-gold text-zinc-950 hover:bg-gold-dark"
+                        }`}
+                      >
+                        {elegida && <Check size={10} strokeWidth={3} className="shrink-0" />}
+                        <span>{v.sizeName}</span>
+                        <span
+                          className={`tabular-nums text-[10px] font-bold ${
+                            v.stock <= 1 ? "text-red-600" : elegida ? "text-zinc-400" : "text-zinc-600"
+                          }`}
+                        >
+                          {v.stock}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             </article>
@@ -267,7 +280,7 @@ export default function SellScreen({ products }: { products: SellProduct[] }) {
                 onClick={finishLocal}
                 className="flex-1 rounded-lg bg-gold py-2.5 text-xs font-bold text-zinc-950 transition hover:bg-gold-dark active:scale-[0.98]"
               >
-                Listo
+                Vendido
               </button>
             </div>
           </div>

@@ -58,7 +58,7 @@ export default function ProductCard({
           ))}
         </div>
 
-        <p className="truncate text-xs text-zinc-400">{product.name}</p>
+        <p className="truncate text-sm font-semibold text-zinc-100">{product.name}</p>
 
         {/* Precio: $ grande, Bs pequeño (patrón ML: el precio manda) */}
         <p className="mt-1 text-base font-bold tabular-nums text-gold">
