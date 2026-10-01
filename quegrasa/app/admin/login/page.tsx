@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import { LogIn } from "lucide-react";
 import { login, type LoginState } from "@/lib/actions/auth";
+import PageTheme from "@/components/page-theme";
 
 export default function LoginPage() {
   const [state, formAction, pending] = useActionState<LoginState, FormData>(
@@ -12,6 +13,7 @@ export default function LoginPage() {
 
   return (
     <main className="flex min-h-dvh items-center justify-center bg-zinc-950 px-6">
+      <PageTheme color="#09090b" />
       <div className="w-full max-w-sm">
         {/* Marca */}
         <div className="mb-8 text-center">

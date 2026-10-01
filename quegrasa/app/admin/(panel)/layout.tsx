@@ -4,6 +4,10 @@ import { redirect } from "next/navigation";
 import { getSession } from "@/lib/auth";
 import { logout } from "@/lib/actions/auth";
 import { LogOut } from "lucide-react";
+import PageTheme from "@/components/page-theme";
+
+// Safari pinta su barra de estado/URL del color del panel (claro)
+export const viewport = { themeColor: "#fafafa" };
 
 export default async function PanelLayout({
   children,
@@ -15,6 +19,8 @@ export default async function PanelLayout({
 
   return (
     <div className="min-h-dvh bg-zinc-50">
+      {/* Fondo del documento = claro en el panel (theme-color para Safari) */}
+      <PageTheme color="#fafafa" />
       <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950">
         <div className="mx-auto flex h-13 max-w-lg items-center justify-between px-4">
           <span className="text-sm font-semibold tracking-tight text-gold">

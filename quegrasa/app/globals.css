@@ -111,6 +111,27 @@
   }
 }
 
+/* ============================================================
+   Web Interface Guidelines (Vercel): interacción móvil y foco
+   ============================================================ */
+
+/* Toque móvil: sin delay de doble-tap ni destello azul al tocar */
+button,
+a,
+[role="button"],
+input,
+select,
+textarea {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Foco visible con la marca (navegación por teclado) */
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 2px;
+}
+
 body {
   background: var(--background);
   color: var(--foreground);

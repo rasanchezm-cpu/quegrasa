@@ -8,6 +8,7 @@ import { prisma } from "@/lib/db";
 import { getLatestRate } from "@/lib/exchange";
 import ProductCard, { type CatalogProduct } from "@/components/catalog/product-card";
 import { BagButton } from "@/components/catalog/bag";
+import PageTheme from "@/components/page-theme";
 
 export const dynamic = "force-dynamic";
 
@@ -74,6 +75,11 @@ export default async function CatalogoPage({
 
   return (
     <main className="min-h-dvh bg-zinc-950 pb-10 text-zinc-100">
+      {/* Fondo del documento = negro (fix bordes blancos en iPhone) */}
+      <PageTheme color="#09090b" />
+
+      {/* h1 semántico para lectores de pantalla y SEO */}
+      <h1 className="sr-only">Catálogo de QueGrasa</h1>
       {/* ---------- Header: logo + buscador (patrón ML) ---------- */}
       <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur">
         <div className="mx-auto max-w-3xl px-4 pt-3.5 pb-3">
@@ -94,6 +100,9 @@ export default async function CatalogoPage({
                   name="q"
                   defaultValue={q}
                   placeholder="Buscar prendas…"
+                  aria-label="Buscar prendas"
+                  autoComplete="off"
+                  enterKeyHint="search"
                   className="w-full bg-transparent px-4 py-2.5 text-sm outline-none placeholder:text-zinc-500"
                 />
                 <button

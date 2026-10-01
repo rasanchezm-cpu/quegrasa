@@ -8,6 +8,7 @@ import { getLatestRate } from "@/lib/exchange";
 import { usdToBs, formatRateDate } from "@/lib/money";
 import ProductActions from "@/components/catalog/product-actions";
 import { BagButton } from "@/components/catalog/bag";
+import PageTheme from "@/components/page-theme";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +53,9 @@ export default async function ProductoPage({
 
   return (
     <main className="min-h-dvh bg-zinc-950 pb-10 text-zinc-100">
+      {/* Fondo del documento = negro (fix iPhone) */}
+      <PageTheme color="#09090b" />
+
       {/* Header mínimo */}
       <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur">
         <div className="mx-auto flex h-12 max-w-3xl items-center gap-3 px-4">
@@ -103,7 +107,7 @@ export default async function ProductoPage({
         )}
 
         {/* Info */}
-        <h1 className="mt-4 text-lg font-semibold leading-snug text-zinc-100">
+        <h1 className="anim-fade-in mt-4 text-pretty text-lg font-semibold leading-snug text-zinc-100">
           {product.name}
         </h1>
 
