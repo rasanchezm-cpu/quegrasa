@@ -70,11 +70,6 @@ export default async function CatalogoPage({
     variants: p.variants.map((v) => ({ sizeName: v.size.name, stock: v.stock })),
   }));
 
-  const totalStock = products.reduce(
-    (s, p) => s + p.variants.reduce((x, v) => x + v.stock, 0),
-    0,
-  );
-
   return (
     <main className="min-h-dvh bg-zinc-950 pb-10 text-zinc-100">
       {/* ---------- Header: logo + buscador (patrón ML) ---------- */}
@@ -143,7 +138,7 @@ export default async function CatalogoPage({
       <div className="mx-auto max-w-3xl px-4">
         <p className="mt-3 text-[11px] text-zinc-500">
           {products.length > 0
-            ? `${products.length} ${products.length === 1 ? "prenda" : "prendas"} disponibles · ${totalStock} piezas`
+            ? `${products.length} ${products.length === 1 ? "prenda disponible" : "prendas disponibles"}`
             : ""}
           {q && <span className="text-zinc-400"> · búsqueda: “{q}”</span>}
         </p>
