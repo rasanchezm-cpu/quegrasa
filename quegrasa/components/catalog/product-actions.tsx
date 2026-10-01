@@ -67,7 +67,7 @@ export default function ProductActions({
         type="button"
         onClick={onAdd}
         disabled={!size}
-        className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gold py-3.5 text-sm font-bold text-zinc-950 transition hover:bg-gold-dark active:scale-[0.98] disabled:opacity-40"
+        className={`mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gold py-3.5 text-sm font-bold text-zinc-950 transition hover:bg-gold-dark active:scale-[0.98] disabled:opacity-40 ${added ? "anim-pop" : ""}`}
       >
         {added ? (
           <>

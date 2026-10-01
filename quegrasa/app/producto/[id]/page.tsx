@@ -70,7 +70,7 @@ export default async function ProductoPage({
         </div>
       </header>
 
-      <div className="mx-auto max-w-3xl px-4">
+      <div className="anim-fade-in mx-auto max-w-3xl px-4">
         {/* Carrusel de fotos (swipe horizontal) */}
         <div className="mt-4 flex snap-x snap-mandatory gap-2 overflow-x-auto rounded-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {(product.images.length > 0

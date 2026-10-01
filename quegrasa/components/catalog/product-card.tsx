@@ -23,10 +23,12 @@ export default function ProductCard({
   product,
   rate,
   rateDate,
+  index = 0,
 }: {
   product: CatalogProduct;
   rate: number | null;
   rateDate?: Date | null;
+  index?: number;
 }) {
   const price = product.salePrice ?? product.price;
   const sizes = product.variants; // solo llegan las tallas con stock
@@ -41,7 +43,10 @@ export default function ProductCard({
   };
 
   return (
-    <div className="overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-zinc-800">
+    <div
+      className="anim-card-in overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-zinc-800"
+      style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}
+    >
       {/* Zona informativa → toca para ver el detalle */}
       <Link href={`/producto/${product.id}`} className="block">
         {product.imageUrl ? (
@@ -106,7 +111,7 @@ export default function ProductCard({
                 type="button"
                 onClick={() => tapTalla(v.sizeName)}
                 aria-label={`Añadir ${product.name} talla ${v.sizeName} al carrito`}
-                className={`flex min-w-9 items-center justify-center gap-0.5 rounded-md px-2 py-1.5 text-[11px] font-bold transition active:scale-90 ${
+                className={`anim-pop flex min-w-9 items-center justify-center gap-0.5 rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors active:scale-90 ${
                   esAgregada
                     ? "bg-gold text-zinc-950"
                     : "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"

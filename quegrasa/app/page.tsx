@@ -147,12 +147,13 @@ export default async function CatalogoPage({
 
         {/* Grid estilo ML */}
         <div className="mt-3 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
-          {products.map((p) => (
+          {products.map((p, i) => (
             <ProductCard
               key={p.id}
               product={p}
               rate={rateInfo?.rate ?? null}
               rateDate={rateInfo?.date ?? null}
+              index={i}
             />
           ))}
         </div>

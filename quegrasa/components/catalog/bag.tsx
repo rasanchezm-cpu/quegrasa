@@ -89,12 +89,16 @@ export function BagButton({ rate, whatsapp }: { rate: number | null; whatsapp: s
       {bag.length > 0 && !open && (
         <button
           type="button"
+          key="fab"
           onClick={() => setOpen(true)}
-          className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gold px-5 py-3 text-sm font-bold text-zinc-950 shadow-lg shadow-gold/20 transition active:scale-95"
+          className="anim-fab fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-full bg-gold px-5 py-3 text-sm font-bold text-zinc-950 shadow-lg shadow-gold/20 transition active:scale-95"
         >
           <ShoppingBag size={16} strokeWidth={2.5} />
           Ver carrito
-          <span className="rounded-full bg-zinc-950 px-2 py-0.5 text-[11px] font-bold text-gold">
+          <span
+            key={bag.length}
+            className="anim-pop rounded-full bg-zinc-950 px-2 py-0.5 text-[11px] font-bold text-gold"
+          >
             {bag.length}
           </span>
         </button>
@@ -106,7 +110,7 @@ export function BagButton({ rate, whatsapp }: { rate: number | null; whatsapp: s
           className="fixed inset-0 z-40 flex items-end bg-zinc-950/70 backdrop-blur-sm"
           onClick={(e) => e.target === e.currentTarget && setOpen(false)}
         >
-          <div className="max-h-[80dvh] w-full overflow-y-auto rounded-t-2xl bg-zinc-900 p-4 ring-1 ring-zinc-700">
+          <div className="anim-drawer max-h-[80dvh] w-full overflow-y-auto rounded-t-2xl bg-zinc-900 p-4 ring-1 ring-zinc-700">
             <div className="mx-auto mb-3 h-1 w-10 rounded-full bg-zinc-700" />
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-zinc-100">Tu pedido</h3>
