@@ -200,7 +200,7 @@ export default function InventoryList({
                         )}
                         {total === 0 && (
                           <span className="rounded bg-red-50 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wide text-red-600">
-                            Agotada
+                            Agotada · fuera del catálogo
                           </span>
                         )}
                         {rateNum > 0 && p.salePrice == null && (
@@ -259,6 +259,16 @@ export default function InventoryList({
                       className="mt-2 flex flex-wrap items-end gap-2 rounded-lg bg-zinc-50 p-2.5"
                     >
                       <input type="hidden" name="productId" value={p.id} />
+                      {total === 0 && (
+                        // Agotada: no se puede controlar la visibilidad —
+                        // el catálogo la excluye sola mientras no haya stock.
+                        // Se conserva su estado para no alterarlo al guardar precios.
+                        <input
+                          type="hidden"
+                          name="isActive"
+                          value={p.isActive ? "true" : "false"}
+                        />
+                      )}
                       <label className="text-[10px] uppercase tracking-wide text-zinc-400">
                         Precio ($)
                         <input
@@ -282,16 +292,23 @@ export default function InventoryList({
                           className="mt-1 w-20 rounded-md border border-zinc-300 bg-white px-2 py-1.5 text-xs tabular-nums text-zinc-900"
                         />
                       </label>
-                      <label className="flex items-center gap-1.5 pb-2 text-xs text-zinc-600">
-                        <input
-                          type="checkbox"
-                          name="isActive"
-                          value="true"
-                          defaultChecked={p.isActive}
-                          className="h-3.5 w-3.5 accent-zinc-900"
-                        />
-                        Visible en catálogo
-                      </label>
+                      {total === 0 ? (
+                        <p className="max-w-44 pb-1.5 text-[10px] leading-snug text-zinc-400">
+                          Sin stock no aparece en el catálogo. Al subir stock
+                          regresa sola.
+                        </p>
+                      ) : (
+                        <label className="flex items-center gap-1.5 pb-2 text-xs text-zinc-600">
+                          <input
+                            type="checkbox"
+                            name="isActive"
+                            value="true"
+                            defaultChecked={p.isActive}
+                            className="h-3.5 w-3.5 accent-zinc-900"
+                          />
+                          Visible en catálogo
+                        </label>
+                      )}
                       <button
                         type="submit"
                         disabled={savingId === p.id || busy}
