@@ -259,3 +259,30 @@ export async function updateProductPrices(
   revalidatePath("/");
   return {};
 }
+
+/**
+ * Eliminar una prenda POR COMPLETO (decisión del dueño, 01-oct-2026):
+ * producto, fotos, tallas con su stock, movimientos e ítems de envíos
+ * viejos que la referencian. Cascada en BD. Las imágenes de Cloudinary
+ * quedan huérfanas (no afectan funcionamiento ni cuota gratuita).
+ * Confirmación en la UI; la acción no se puede deshacer.
+ */
+export async function deleteProduct(
+  productId: string,
+): Promise<{ ok: boolean; error?: string }> {
+  await requireSession();
+
+  if (!productId) return { ok: false, error: "Prenda inválida" };
+
+  try {
+    await prisma.product.delete({ where: { id: productId } });
+  } catch {
+    return { ok: false, error: "No se pudo eliminar, intenta de nuevo" };
+  }
+
+  revalidatePath("/admin/inventario");
+  revalidatePath("/admin/vendido");
+  revalidatePath("/admin/ofertas");
+  revalidatePath("/");
+  return { ok: true };
+}
