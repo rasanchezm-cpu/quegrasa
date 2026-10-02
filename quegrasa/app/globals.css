@@ -1,34 +1,92 @@
 @import "tailwindcss";
 
-/* Herramienta de trabajo: siempre modo claro, sin importar el ajuste
-   del sistema. Evita textos blancos heredados en celulares con dark mode. */
+/* ============================================================
+   QueGrasa — tokens del sistema (estilo Grasa MID)
+   Identidad: negro profundo + crema + dorado de la marca
+   ============================================================ */
+
 :root {
-  color-scheme: light;
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light; /* el panel admin es claro por diseño */
+  --background: #060606;
+  --foreground: #f4efe3;
+  --card: #0c0c0c;
+  --card-foreground: #f4efe3;
+  --primary: #f4efe3;
+  --primary-foreground: #0a0a0a;
+  --secondary: #161616;
+  --secondary-foreground: #f4efe3;
+  --muted: #161616;
+  --muted-foreground: #8f8a80;
+  --border: #262626;
+  --input: #262626;
+  --ring: #d4af37;
+  --gold: #d4af37;
+  --gold-dark: #b28d1c;
+
+  /* panel admin (claro) — se aplican bajo .theme-panel */
+  --panel-bg: #fafafa;
+  --panel-fg: #171717;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-gold: var(--gold);
+  --color-gold-dark: var(--gold-dark);
+  --color-panel-bg: var(--panel-bg);
+  --color-panel-fg: var(--panel-fg);
+  --font-sans: var(--font-jost), system-ui, sans-serif;
+  --font-heading: var(--font-bebas), system-ui, sans-serif;
 }
 
-/* Identidad de marca QueGrasa: negro con dorado */
-@theme {
-  --color-gold: #d3ab2c;
-  --color-gold-dark: #b28d1c;
-  --color-gold-soft: #f6ecc9;
+/* Utilidades de la identidad */
+.font-heading {
+  font-family: var(--font-bebas), system-ui, sans-serif;
+}
+.text-gold {
+  color: var(--gold);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-jost), system-ui, sans-serif;
+}
+
+/* Panel admin: tema claro por clase en su layout */
+.theme-panel {
+  --background: #fafafa;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --primary: #18181b;
+  --primary-foreground: #ffffff;
+  --secondary: #f4f4f5;
+  --secondary-foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --border: #e4e4e7;
+  --input: #e4e4e7;
+  --ring: #d3ab2c;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 /* ============================================================
-   Animaciones del catálogo (filosofía: UNA orquestación de
-   entrada + movimiento que responde a acciones del usuario).
-   Transform/opacity solamente: GPU-friendly.
+   Animaciones (una orquestación + respuesta a acciones)
    ============================================================ */
 
-/* Entrada del catálogo: cascada sutil, una sola vez */
 @keyframes card-in {
   from {
     opacity: 0;
@@ -43,7 +101,6 @@
   animation: card-in 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Pop con rebote: confirma una acción (agregar al carrito) */
 @keyframes pop {
   0% {
     transform: scale(1);
@@ -59,7 +116,6 @@
   animation: pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-/* El carrito sube desde abajo (patrón móvil) */
 @keyframes drawer-in {
   from {
     transform: translateY(100%);
@@ -72,7 +128,6 @@
   animation: drawer-in 0.28s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* El botón flotante aparece deslizando */
 @keyframes fab-in {
   from {
     opacity: 0;
@@ -87,7 +142,6 @@
   animation: fab-in 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* Fade suave al montar una vista (detalle de prenda) */
 @keyframes fade-in {
   from {
     opacity: 0;
@@ -100,22 +154,33 @@
   animation: fade-in 0.3s ease-out both;
 }
 
-/* Accesibilidad: sin animaciones para quien lo prefiera */
+/* Marquee infinito (cinta de palabras) */
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.animate-marquee {
+  animation: marquee 28s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .anim-card-in,
   .anim-pop,
   .anim-drawer,
   .anim-fab,
-  .anim-fade-in {
+  .anim-fade-in,
+  .animate-marquee {
     animation: none;
   }
 }
 
 /* ============================================================
-   Web Interface Guidelines (Vercel): interacción móvil y foco
+   Web Interface Guidelines (Vercel): interacción y foco
    ============================================================ */
-
-/* Toque móvil: sin delay de doble-tap ni destello azul al tocar */
 button,
 a,
 [role="button"],
@@ -125,15 +190,7 @@ textarea {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
-
-/* Foco visible con la marca (navegación por teclado) */
 :focus-visible {
-  outline: 2px solid var(--color-gold);
+  outline: 2px solid var(--gold);
   outline-offset: 2px;
-}
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
 }

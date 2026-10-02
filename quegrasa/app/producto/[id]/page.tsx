@@ -1,5 +1,4 @@
-// Detalle de prenda del catálogo: carrusel de fotos, precio dual,
-// tallas (agotadas tachadas), descripción y agregar al pedido.
+// Detalle de prenda — estética editorial Grasa MID.
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
@@ -8,12 +7,14 @@ import { getLatestRate } from "@/lib/exchange";
 import { usdToBs, formatRateDate } from "@/lib/money";
 import ProductActions from "@/components/catalog/product-actions";
 import { BagButton } from "@/components/catalog/bag";
+import { PillNav } from "@/components/catalog/pill-nav";
+import { SiteFooter } from "@/components/catalog/site-footer";
 import PageTheme from "@/components/page-theme";
 
 export const dynamic = "force-dynamic";
 
 const bigImage = (url: string) =>
-  url.replace("/upload/", "/upload/c_fill,w_900,h_900,f_auto,q_auto/");
+  url.replace("/upload/", "/upload/c_fill,w_900,h_1200,f_auto,q_auto/");
 
 export default async function ProductoPage({
   params,
@@ -27,7 +28,7 @@ export default async function ProductoPage({
       where: {
         id,
         isActive: true,
-        variants: { some: { stock: { gt: 0 } } }, // sin stock no existe en el catálogo
+        variants: { some: { stock: { gt: 0 } } },
       },
       include: {
         images: { orderBy: { sortOrder: "asc" } },
@@ -50,117 +51,121 @@ export default async function ProductoPage({
   const price =
     product.salePrice != null ? Number(product.salePrice) : Number(product.price);
   const rate = rateInfo?.rate ?? null;
+  const discount =
+    product.salePrice != null
+      ? Math.round((1 - Number(product.salePrice) / Number(product.price)) * 100)
+      : 0;
 
   return (
-    <main className="min-h-dvh bg-zinc-950 pb-10 text-zinc-100">
-      {/* Fondo del documento = negro (fix iPhone) */}
-      <PageTheme color="#09090b" />
+    <div className="min-h-dvh bg-background text-foreground">
+      <PageTheme color="#060606" />
+      <PillNav items={[{ label: "Inicio", href: "/" }, { label: "Catálogo", href: "/catalogo" }]} />
 
-      {/* Header mínimo */}
-      <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950/95 backdrop-blur">
-        <div className="mx-auto flex h-12 max-w-3xl items-center gap-3 px-4">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-xs font-medium text-zinc-400 transition hover:text-zinc-100"
-          >
-            <ArrowLeft size={15} strokeWidth={2} />
-            Catálogo
-          </Link>
-          <span className="text-[10px] uppercase tracking-wider text-zinc-600">
-            {product.productCategories
-              .map((pc) => pc.category.name)
-              .join(" · ")}
-          </span>
-        </div>
-      </header>
+      <main className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
+        <Link
+          href="/catalogo"
+          className="flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-primary"
+        >
+          <ArrowLeft size={15} strokeWidth={2} aria-hidden="true" />
+          Catálogo
+        </Link>
 
-      <div className="anim-fade-in mx-auto max-w-3xl px-4">
-        {/* Carrusel de fotos (swipe horizontal) */}
-        <div className="mt-4 flex snap-x snap-mandatory gap-2 overflow-x-auto rounded-xl [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {(product.images.length > 0
-            ? product.images
-            : [{ url: "", publicId: null }]
-          ).map((img, i) => (
-            <div
-              key={i}
-              className="w-full shrink-0 snap-center overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-zinc-800"
-            >
-              {img.url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={bigImage(img.url)}
-                  alt={product.name}
-                  className="aspect-square w-full object-cover"
-                />
-              ) : (
-                <div className="flex aspect-square w-full items-center justify-center text-4xl text-zinc-700">
-                  👕
+        <div className="mt-6 grid gap-10 lg:grid-cols-2 lg:gap-14">
+          {/* Galería */}
+          <div className="anim-fade-in">
+            <div className="flex snap-x snap-mandatory gap-3 overflow-x-auto pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {(product.images.length > 0
+                ? product.images
+                : [{ url: "", publicId: null }]
+              ).map((img, i) => (
+                <div
+                  key={i}
+                  className="relative aspect-[3/4] w-full shrink-0 snap-center overflow-hidden border border-border bg-secondary sm:w-auto sm:flex-1"
+                >
+                  {img.url ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={bigImage(img.url)}
+                      alt={product.name}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center text-6xl text-muted-foreground">
+                      🖤
+                    </div>
+                  )}
+                  {discount > 0 && i === 0 && (
+                    <span className="absolute left-3 top-3 bg-gold px-2 py-1 text-xs font-bold text-black">
+                      -{discount}%
+                    </span>
+                  )}
                 </div>
+              ))}
+            </div>
+            {product.images.length > 1 && (
+              <p className="mt-1.5 text-center text-[10px] text-muted-foreground sm:text-left">
+                Desliza para ver más fotos →
+              </p>
+            )}
+          </div>
+
+          {/* Info */}
+          <div className="anim-fade-in">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-muted-foreground">
+              {product.productCategories.map((pc) => pc.category.name).join(" · ")}
+            </p>
+
+            <h1 className="font-heading text-pretty mt-1 text-5xl leading-[0.95] tracking-wider text-primary">
+              {product.name}
+            </h1>
+
+            <div className="mt-4 flex items-baseline gap-3">
+              <p className="font-heading text-4xl tabular-nums text-gold">
+                ${price.toFixed(2)}
+              </p>
+              {product.salePrice != null && (
+                <p className="text-lg tabular-nums text-muted-foreground line-through">
+                  ${Number(product.price).toFixed(2)}
+                </p>
               )}
             </div>
-          ))}
+            {rate && rate > 0 && (
+              <p className="text-xs tabular-nums text-muted-foreground">
+                Bs{" "}
+                {(usdToBs(price, rate)).toLocaleString("es-VE", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+                {rateInfo && (
+                  <span className="text-muted-foreground/60">
+                    {" "}
+                    · tasa BCV {formatRateDate(rateInfo.date)}
+                  </span>
+                )}
+              </p>
+            )}
+
+            {product.description && (
+              <p className="mt-5 whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
+                {product.description}
+              </p>
+            )}
+
+            <ProductActions
+              productId={product.id}
+              name={product.name}
+              price={price}
+              variants={product.variants.map((v) => ({
+                sizeName: v.size.name,
+                stock: v.stock,
+              }))}
+            />
+          </div>
         </div>
-        {product.images.length > 1 && (
-          <p className="mt-1.5 text-center text-[10px] text-zinc-600">
-            Desliza para ver más fotos →
-          </p>
-        )}
+      </main>
 
-        {/* Info */}
-        <h1 className="anim-fade-in mt-4 text-pretty text-lg font-semibold leading-snug text-zinc-100">
-          {product.name}
-        </h1>
-
-        <div className="mt-1.5">
-          <p className="text-2xl font-bold tabular-nums text-gold">
-            ${price.toFixed(2)}
-          </p>
-          {rate && rate > 0 && (
-            <p className="text-xs tabular-nums text-zinc-400">
-              Bs{" "}
-              {(usdToBs(price, rate)).toLocaleString("es-VE", {
-                minimumFractionDigits: 2,
-              })}
-              {rateInfo && (
-                <span className="text-zinc-600">
-                  {" "}
-                  · tasa BCV {formatRateDate(rateInfo.date)}
-                </span>
-              )}
-            </p>
-          )}
-          {product.salePrice != null && (
-            <p className="mt-0.5 text-[11px] text-zinc-500">
-              Antes{" "}
-              <span className="line-through tabular-nums">
-                ${Number(product.price).toFixed(2)}
-              </span>
-              <span className="ml-1.5 rounded bg-gold/15 px-1.5 py-0.5 font-bold uppercase text-gold">
-                Oferta
-              </span>
-            </p>
-          )}
-        </div>
-
-        {product.description && (
-          <p className="mt-4 whitespace-pre-line text-xs leading-relaxed text-zinc-400">
-            {product.description}
-          </p>
-        )}
-
-        {/* Tallas + agregar (agotadas tachadas, regla del spec) */}
-        <ProductActions
-          productId={product.id}
-          name={product.name}
-          price={price}
-          variants={product.variants.map((v) => ({
-            sizeName: v.size.name,
-            stock: v.stock,
-          }))}
-        />
-      </div>
-
+      <SiteFooter />
       <BagButton rate={rate} whatsapp={store?.whatsappNumber ?? "584245476224"} />
-    </main>
+    </div>
   );
 }

@@ -1,13 +1,11 @@
+// Tarjeta de prenda — estilo Grasa MID: bordes rectos, imagen retrato 3/4,
+// hover con zoom, badge de %, precio $ grande + Bs pequeño, tallas de un toque.
 "use client";
-
-// Tarjeta de prenda del catálogo — patrón Mercado Libre adaptado:
-// imagen cuadrada, título, precio $ grande (Bs pequeño), tallas
-// clicables que agregan directo al carrito sin salir del catálogo.
 import Link from "next/link";
 import { useState } from "react";
 import { addToBag } from "@/components/catalog/bag";
-import { usdToBs, formatRateDate } from "@/lib/money";
-import { Check, ShoppingBag } from "lucide-react";
+import { usdToBs } from "@/lib/money";
+import { Check, Shirt, ShoppingBag } from "lucide-react";
 
 export type CatalogVariant = { sizeName: string; stock: number };
 export type CatalogProduct = {
@@ -26,16 +24,19 @@ export default function ProductCard({
   index = 0,
 }: {
   product: CatalogProduct;
-  rate: number | null;
+  rate?: number | null;
   rateDate?: Date | null;
   index?: number;
 }) {
   const price = product.salePrice ?? product.price;
-  const sizes = product.variants; // solo llegan las tallas con stock
   const rateNum = rate ?? 0;
+  const sizes = product.variants; // solo tallas con stock
   const [added, setAdded] = useState<string | null>(null);
+  const discount =
+    product.salePrice != null
+      ? Math.round((1 - product.salePrice / product.price) * 100)
+      : 0;
 
-  // Tocar una talla = añadir al carrito y seguir navegando
   const tapTalla = (sizeName: string) => {
     addToBag({ productId: product.id, name: product.name, sizeName, price });
     setAdded(sizeName);
@@ -43,87 +44,89 @@ export default function ProductCard({
   };
 
   return (
-    <div
-      className="anim-card-in overflow-hidden rounded-xl bg-zinc-900 ring-1 ring-zinc-800"
+    <article
+      className="anim-card-in group flex flex-col border border-border bg-card transition-colors hover:border-gold/60"
       style={{ animationDelay: `${Math.min(index, 8) * 35}ms` }}
     >
-      {/* Zona informativa → toca para ver el detalle */}
       <Link href={`/producto/${product.id}`} className="block">
-        {product.imageUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            loading="lazy"
-            className="aspect-square w-full object-cover"
-          />
-        ) : (
-          <div className="aspect-square w-full bg-zinc-800" />
-        )}
+        <div className="relative aspect-[3/4] overflow-hidden bg-secondary">
+          {product.imageUrl ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={product.imageUrl}
+              alt={product.name}
+              loading={index < 4 ? "eager" : "lazy"}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+              <ShoppingBag className="h-12 w-12" aria-hidden="true" />
+            </div>
+          )}
 
-        <div className="p-2.5 pb-2">
-          <p className="truncate text-sm font-semibold text-zinc-100">
+          {discount > 0 && (
+            <span className="absolute left-3 top-3 bg-gold px-2 py-1 text-xs font-bold text-black">
+              -{discount}%
+            </span>
+          )}
+        </div>
+
+        <div className="space-y-1 px-4 pb-3 pt-4">
+          <h3 className="line-clamp-1 font-semibold text-primary transition-colors group-hover:text-gold">
             {product.name}
-          </p>
-
-          {/* Precio: $ grande, Bs pequeño */}
-          <p className="mt-0.5 text-base font-bold tabular-nums text-gold">
-            ${price.toFixed(2)}
+          </h3>
+          <div className="flex items-baseline gap-2">
+            <p className="text-lg font-semibold tabular-nums text-gold">
+              ${price.toFixed(2)}
+            </p>
             {product.salePrice != null && (
-              <span className="ml-1.5 text-[10px] font-normal text-zinc-500 line-through">
+              <p className="text-sm tabular-nums text-muted-foreground line-through">
                 ${product.price.toFixed(2)}
-              </span>
+              </p>
             )}
-          </p>
+          </div>
           {rateNum > 0 && (
-            <p className="text-[10px] tabular-nums text-zinc-500">
-              Bs {(usdToBs(price, rateNum)).toLocaleString("es-VE", {
+            <p className="text-[11px] tabular-nums text-muted-foreground">
+              Bs{" "}
+              {(usdToBs(price, rateNum)).toLocaleString("es-VE", {
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
               })}
-              {rateDate && (
-                <span className="text-zinc-600"> · BCV {formatRateDate(rateDate)}</span>
-              )}
-            </p>
-          )}
-          {product.salePrice != null && (
-            <p className="mt-1">
-              <span className="rounded bg-gold/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-gold">
-                Oferta
-              </span>
             </p>
           )}
         </div>
       </Link>
 
-      {/* Tallas clicables: añadir al carrito sin salir del catálogo */}
-      <div className="border-t border-zinc-800 px-2.5 pb-2.5 pt-2">
-        <p className="flex items-center gap-1 text-[9px] font-medium uppercase tracking-wide text-zinc-500">
-          <ShoppingBag size={9} strokeWidth={2.5} />
-          Toca tu talla
-        </p>
-        <div className="mt-1.5 flex flex-wrap gap-1">
-          {sizes.map((v) => {
-            const esAgregada = added === v.sizeName;
-            return (
-              <button
-                key={v.sizeName}
-                type="button"
-                onClick={() => tapTalla(v.sizeName)}
-                aria-label={`Añadir ${product.name} talla ${v.sizeName} al carrito`}
-                className={`anim-pop flex min-w-9 items-center justify-center gap-0.5 rounded-md px-2 py-1.5 text-[11px] font-bold transition-colors active:scale-90 ${
-                  esAgregada
-                    ? "bg-gold text-zinc-950"
-                    : "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
-                }`}
-              >
-                {esAgregada && <Check size={9} strokeWidth={3.5} />}
-                {v.sizeName}
-              </button>
-            );
-          })}
+      {/* Tallas de un toque */}
+      {sizes.length > 0 && (
+        <div className="mt-auto border-t border-border px-4 py-3">
+          <p className="mb-2 flex items-center gap-1.5 text-[11px] uppercase tracking-widest text-muted-foreground">
+            <Shirt className="h-3.5 w-3.5" aria-hidden="true" />
+            Toca tu talla
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {sizes.map((v) => {
+              const esAgregada = added === v.sizeName;
+              return (
+                <button
+                  key={v.sizeName}
+                  type="button"
+                  onClick={() => tapTalla(v.sizeName)}
+                  aria-label={`Añadir ${product.name} talla ${v.sizeName} al carrito`}
+                  className={`flex min-w-10 items-center justify-center gap-0.5 border px-2.5 py-2 text-sm font-semibold transition-colors active:scale-90 ${
+                    esAgregada
+                      ? "border-gold bg-gold text-black"
+                      : "border-border bg-secondary text-primary hover:border-primary hover:bg-primary hover:text-black"
+                  }`}
+                >
+                  {esAgregada && <Check size={11} strokeWidth={3} aria-hidden="true" />}
+                  {v.sizeName}
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </article>
   );
 }

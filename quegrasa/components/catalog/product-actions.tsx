@@ -1,9 +1,9 @@
 "use client";
 
-// Acciones del detalle: elegir talla y agregar a la bolsa de pedido.
+// Acciones del detalle: elegir talla y añadir al carrito (estética editorial).
 import { useState } from "react";
 import { addToBag } from "@/components/catalog/bag";
-import { ShoppingBag, Check } from "lucide-react";
+import { Check, ShoppingBag } from "lucide-react";
 
 export type DetailVariant = { sizeName: string; stock: number };
 
@@ -16,7 +16,7 @@ export default function ProductActions({
   productId: string;
   name: string;
   price: number;
-  variants: DetailVariant[]; // las agotadas llegan con stock 0 para mostrarlas tachadas
+  variants: DetailVariant[]; // agotadas con stock 0 para mostrarlas tachadas
 }) {
   const [size, setSize] = useState<string | null>(
     variants.find((v) => v.stock > 0)?.sizeName ?? null,
@@ -31,10 +31,10 @@ export default function ProductActions({
   };
 
   return (
-    <div className="mt-5">
+    <div className="mt-6">
       {/* Selector de tallas */}
       <div>
-        <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-500">
+        <p className="mb-2 text-[11px] uppercase tracking-widest text-muted-foreground">
           Talla
         </p>
         <div className="flex flex-wrap gap-2">
@@ -47,12 +47,12 @@ export default function ProductActions({
                 type="button"
                 disabled={agotada}
                 onClick={() => setSize(v.sizeName)}
-                className={`min-w-12 rounded-lg px-3 py-2.5 text-sm font-semibold transition ${
+                className={`min-w-12 border px-3 py-2.5 text-sm font-semibold transition-colors ${
                   agotada
-                    ? "cursor-not-allowed bg-zinc-900 text-zinc-600 line-through"
+                    ? "cursor-not-allowed border-border/50 text-muted-foreground/40 line-through"
                     : sel
-                      ? "bg-gold text-zinc-950"
-                      : "bg-zinc-900 text-zinc-200 ring-1 ring-zinc-700 hover:ring-zinc-500"
+                      ? "border-gold bg-gold text-black"
+                      : "border-border bg-card text-primary hover:border-primary"
                 }`}
               >
                 {v.sizeName}
@@ -62,26 +62,26 @@ export default function ProductActions({
         </div>
       </div>
 
-      {/* Agregar al pedido */}
+      {/* Añadir al carrito */}
       <button
         type="button"
         onClick={onAdd}
         disabled={!size}
-        className={`mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-gold py-3.5 text-sm font-bold text-zinc-950 transition hover:bg-gold-dark active:scale-[0.98] disabled:opacity-40 ${added ? "anim-pop" : ""}`}
+        className={`font-heading mt-6 flex w-full items-center justify-center gap-2 bg-gold py-4 text-lg tracking-widest text-black transition-colors hover:bg-gold-dark active:scale-[0.98] disabled:opacity-40 ${added ? "anim-pop" : ""}`}
       >
         {added ? (
           <>
-            <Check size={16} strokeWidth={2.5} />
-            ¡Agregado al carrito!
+            <Check size={17} strokeWidth={3} />
+            ¡AGREGADO!
           </>
         ) : (
           <>
-            <ShoppingBag size={16} strokeWidth={2.5} />
-            Añadir al carrito
+            <ShoppingBag size={17} strokeWidth={2.5} />
+            AÑADIR AL CARRITO
           </>
         )}
       </button>
-      <p className="mt-2 text-center text-[10px] text-zinc-500">
+      <p className="mt-2 text-center text-[10px] text-muted-foreground">
         Sin cuenta ni registro: tu pedido va directo por WhatsApp
       </p>
     </div>
