@@ -128,35 +128,37 @@ export default async function CatalogoPage({
             </button>
           </form>
 
-          {/* Chips de categoría */}
+          {/* Chips de categoría — centrados */}
           <div
-            className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+            className="mt-3 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
             role="group"
             aria-label="Filtrar por categoría"
           >
-            <Link
-              href={q ? `/catalogo?q=${encodeURIComponent(q)}` : "/catalogo"}
-              className={`h-9 shrink-0 rounded-full border px-4 text-sm font-medium transition-colors ${
-                !activeCategory
-                  ? "border-gold bg-gold text-black"
-                  : "border-border bg-card text-primary hover:border-gold/50"
-              }`}
-            >
-              Todo
-            </Link>
-            {categories.map((c) => (
+            <div className="mx-auto flex w-max min-w-full justify-center gap-2">
               <Link
-                key={c.id}
-                href={`/catalogo?cat=${c.slug}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+                href={q ? `/catalogo?q=${encodeURIComponent(q)}` : "/catalogo"}
                 className={`h-9 shrink-0 rounded-full border px-4 text-sm font-medium transition-colors ${
-                  activeCategory?.id === c.id
+                  !activeCategory
                     ? "border-gold bg-gold text-black"
                     : "border-border bg-card text-primary hover:border-gold/50"
                 }`}
               >
-                {c.name}
+                Todo
               </Link>
-            ))}
+              {categories.map((c) => (
+                <Link
+                  key={c.id}
+                  href={`/catalogo?cat=${c.slug}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
+                  className={`h-9 shrink-0 rounded-full border px-4 text-sm font-medium transition-colors ${
+                    activeCategory?.id === c.id
+                      ? "border-gold bg-gold text-black"
+                      : "border-border bg-card text-primary hover:border-gold/50"
+                  }`}
+                >
+                  {c.name}
+                </Link>
+              ))}
+            </div>
           </div>
         </div>
 
