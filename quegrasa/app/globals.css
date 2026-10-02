@@ -190,6 +190,14 @@ textarea {
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
 }
+
+/* Formularios: siempre heredan el color del contenedor
+   (panel claro → texto oscuro; catálogo negro → texto crema) */
+input,
+select,
+textarea {
+  color: inherit;
+}
 :focus-visible {
   outline: 2px solid var(--gold);
   outline-offset: 2px;

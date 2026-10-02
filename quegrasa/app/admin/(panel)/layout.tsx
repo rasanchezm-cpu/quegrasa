@@ -18,7 +18,7 @@ export default async function PanelLayout({
   if (!session) redirect("/admin/login");
 
   return (
-    <div className="min-h-dvh bg-zinc-50">
+    <div className="min-h-dvh bg-zinc-50 text-zinc-900">
       {/* Fondo del documento = claro en el panel (theme-color para Safari) */}
       <PageTheme color="#fafafa" />
       <header className="sticky top-0 z-10 border-b border-zinc-800 bg-zinc-950">
