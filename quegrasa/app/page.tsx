@@ -13,9 +13,6 @@ import { BagButton } from "@/components/catalog/bag";
 
 export const dynamic = "force-dynamic";
 
-const bigImage = (url: string) =>
-  url.replace("/upload/", "/upload/c_fill,w_900,h_1200,f_auto,q_auto/");
-
 export default async function HomeEditorial() {
   const store = await prisma.store.findFirst({ orderBy: { createdAt: "asc" } });
 
@@ -50,19 +47,13 @@ export default async function HomeEditorial() {
     variants: p.variants.map((v) => ({ sizeName: v.size.name, stock: v.stock })),
   }));
 
-  // fotos para el slideshow del hero (las 2 más recientes con foto)
-  const heroPhotos = rows
-    .filter((p) => p.images[0])
-    .slice(0, 2)
-    .map((p) => bigImage(p.images[0].url));
-
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <PageTheme color="#060606" />
-      <PillNav items={[{ label: "Catálogo", href: "/catalogo" }]} />
+      <PillNav />
 
       <main className="pt-10">
-        <HeroSection photos={heroPhotos} />
+        <HeroSection />
 
         <div className="overflow-hidden py-6">
           <GoldMarquee />

@@ -44,9 +44,13 @@ export function BagButton({ rate, whatsapp }: { rate: number | null; whatsapp: s
     sync();
     window.addEventListener("quegrasa-bag-updated", sync);
     window.addEventListener("storage", sync);
+    // abrir el drawer desde el botón del menú superior
+    const open = () => setOpen(true);
+    window.addEventListener("quegrasa-open-bag", open);
     return () => {
       window.removeEventListener("quegrasa-bag-updated", sync);
       window.removeEventListener("storage", sync);
+      window.removeEventListener("quegrasa-open-bag", open);
     };
   }, []);
 

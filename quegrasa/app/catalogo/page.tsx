@@ -87,7 +87,7 @@ export default async function CatalogoPage({
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <PageTheme color="#060606" />
-      <PillNav items={[{ label: "Inicio", href: "/" }]} />
+      <PillNav />
 
       <main className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
         <header className="py-8">

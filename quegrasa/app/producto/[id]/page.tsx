@@ -59,7 +59,7 @@ export default async function ProductoPage({
   return (
     <div className="min-h-dvh bg-background text-foreground">
       <PageTheme color="#060606" />
-      <PillNav items={[{ label: "Inicio", href: "/" }, { label: "Catálogo", href: "/catalogo" }]} />
+      <PillNav />
 
       <main className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">
         <Link

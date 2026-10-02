@@ -24,9 +24,6 @@ export function SiteFooter() {
             >
               WhatsApp
             </a>
-            <Link href="/admin" className="transition-colors hover:text-gold">
-              Panel
-            </Link>
           </nav>
           <p className="text-xs text-muted-foreground">
             © {new Date().getFullYear()} QueGrasa · Precios en Bs a tasa BCV del día ·
