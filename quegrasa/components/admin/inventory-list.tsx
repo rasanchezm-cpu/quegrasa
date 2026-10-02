@@ -398,11 +398,15 @@ export default function InventoryList({
                       Cant.
                       <input
                         type="number"
+                        inputMode="numeric"
                         min={1}
                         max={999}
                         value={addSizeQty}
-                        onChange={(e) => setAddSizeQty(Number(e.target.value) || 1)}
-                        className="ml-1 w-16 rounded-md border border-zinc-300 bg-white px-2 py-2 text-xs tabular-nums text-zinc-900 outline-none focus:border-zinc-900"
+                        onChange={(e) => {
+                          const n = parseInt(e.target.value, 10);
+                          setAddSizeQty(Number.isFinite(n) ? Math.min(999, Math.max(1, n)) : 1);
+                        }}
+                        className="ml-1 w-20 rounded-md border border-zinc-300 bg-white px-2 py-2 text-sm tabular-nums text-zinc-900 outline-none focus:border-zinc-900"
                       />
                     </label>
                     <button
@@ -418,39 +422,38 @@ export default function InventoryList({
                             addSizeQty,
                           );
                           setAddingSize(false);
-                          if (!res.ok) {
+                          if (!res.ok || !res.variantId) {
                             setError(res.error ?? "No se pudo agregar");
                             return;
                           }
-                          // actualizar el estado local
+                          const realId = res.variantId;
+                          const realStock = res.stock ?? addSizeQty;
+                          const tallaNueva = addSizeName.trim();
+                          // actualizar el estado local con el ID REAL de la BD
                           setList((prev) =>
                             prev.map((p) => {
                               if (p.id !== open.id) return p;
-                              const existe = p.variants.find(
+                              const existeIdx = p.variants.findIndex(
                                 (v) =>
                                   v.sizeName.toLowerCase() ===
-                                  addSizeName.trim().toLowerCase(),
+                                  tallaNueva.toLowerCase(),
                               );
-                              if (existe) {
-                                return {
-                                  ...p,
-                                  variants: p.variants.map((v) =>
-                                    v.sizeName.toLowerCase() ===
-                                    addSizeName.trim().toLowerCase()
-                                      ? { ...v, stock: v.stock + addSizeQty }
-                                      : v,
-                                  ),
+                              if (existeIdx >= 0) {
+                                // ya existía: actualizar stock con el real
+                                const nuevos = [...p.variants];
+                                nuevos[existeIdx] = {
+                                  ...nuevos[existeIdx],
+                                  id: realId,
+                                  stock: realStock,
                                 };
+                                return { ...p, variants: nuevos };
                               }
+                              // talla nueva: insertar ordenada al final
                               return {
                                 ...p,
                                 variants: [
                                   ...p.variants,
-                                  {
-                                    id: `nueva-${Date.now()}`,
-                                    sizeName: addSizeName.trim(),
-                                    stock: addSizeQty,
-                                  },
+                                  { id: realId, sizeName: tallaNueva, stock: realStock },
                                 ],
                               };
                             }),

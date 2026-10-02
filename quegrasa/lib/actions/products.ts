@@ -279,7 +279,7 @@ export async function addVariantToProduct(
   productId: string,
   sizeName: string,
   stock: number,
-): Promise<{ ok: boolean; error?: string }> {
+): Promise<{ ok: boolean; error?: string; variantId?: string; stock?: number }> {
   const session = await requireSession();
 
   const name = sizeName.trim().slice(0, 10);
@@ -318,7 +318,7 @@ export async function addVariantToProduct(
 
   revalidatePath("/admin/inventario");
   revalidatePath("/");
-  return { ok: true };
+  return { ok: true, variantId: variant.id, stock: variant.stock };
 }
 
 /**
