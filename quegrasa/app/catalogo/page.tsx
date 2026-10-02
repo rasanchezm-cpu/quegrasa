@@ -137,7 +137,7 @@ export default async function CatalogoPage({
             <div className="mx-auto flex w-max min-w-full justify-center gap-2">
               <Link
                 href={q ? `/catalogo?q=${encodeURIComponent(q)}` : "/catalogo"}
-                className={`h-9 shrink-0 rounded-full border px-4 text-sm font-medium transition-colors ${
+                className={`inline-flex h-9 shrink-0 items-center justify-center rounded-full border px-4 text-sm font-medium transition-colors ${
                   !activeCategory
                     ? "border-gold bg-gold text-black"
                     : "border-border bg-card text-primary hover:border-gold/50"
@@ -149,7 +149,7 @@ export default async function CatalogoPage({
                 <Link
                   key={c.id}
                   href={`/catalogo?cat=${c.slug}${q ? `&q=${encodeURIComponent(q)}` : ""}`}
-                  className={`h-9 shrink-0 rounded-full border px-4 text-sm font-medium transition-colors ${
+                  className={`inline-flex h-9 shrink-0 items-center justify-center rounded-full border px-4 text-sm font-medium transition-colors ${
                     activeCategory?.id === c.id
                       ? "border-gold bg-gold text-black"
                       : "border-border bg-card text-primary hover:border-gold/50"
