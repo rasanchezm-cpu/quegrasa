@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { createProduct, type ProductFormState } from "@/lib/actions/products";
 import { formatBs, usdToBs } from "@/lib/money";
 import { CheckCircle2, ImagePlus, X, Plus } from "lucide-react";
+import ImageCropper from "@/components/admin/image-cropper";
 
 type SizeOption = { id: string; name: string };
 type Photo = { url: string; publicId: string };
@@ -35,6 +36,10 @@ export default function ProductForm({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+
+  // cola de recortes: cada foto pasa por el encuadre antes de subirse
+  const [cropQueue, setCropQueue] = useState<File[]>([]);
+  const cropping = cropQueue[0] ?? null;
 
   const [price, setPrice] = useState("");
   const [salePrice, setSalePrice] = useState("");
@@ -85,19 +90,31 @@ export default function ProductForm({
     }
   }, []);
 
-  const handleFiles = async (files: FileList | null) => {
+  const handleFiles = (files: FileList | null) => {
     if (!files) return;
-    const space = MAX_PHOTOS - photos.length;
+    const space = MAX_PHOTOS - photos.length - cropQueue.length;
     const list = Array.from(files).slice(0, space);
     if (list.length === 0) return;
-    setUploading(true);
-    for (const f of list) {
-      const photo = await uploadToCloudinary(f);
-      if (photo) setPhotos((prev) => [...prev, photo]);
-    }
-    setUploading(false);
+    // todas pasan primero por el recortador interactivo
+    setCropQueue((prev) => [...prev, ...list]);
     if (fileInput.current) fileInput.current.value = "";
   };
+
+  // el recortador confirmó el encuadre: subir a Cloudinary y seguir con la cola
+  const onCropped = useCallback(
+    async (croppedFile: File) => {
+      setCropQueue((prev) => prev.slice(1));
+      setUploading(true);
+      const photo = await uploadToCloudinary(croppedFile);
+      if (photo) setPhotos((prev) => [...prev, photo]);
+      setUploading(false);
+    },
+    [uploadToCloudinary],
+  );
+
+  const onCropCancel = useCallback(() => {
+    setCropQueue((prev) => prev.slice(1));
+  }, []);
 
   const removePhoto = (publicId: string) =>
     setPhotos((prev) => prev.filter((p) => p.publicId !== publicId));
@@ -204,6 +221,16 @@ export default function ProductForm({
           className="hidden"
           onChange={(e) => handleFiles(e.target.files)}
         />
+
+        {/* Recortador interactivo: una foto a la vez antes de subir */}
+        {cropping && (
+          <ImageCropper
+            key={cropping.name + cropping.size}
+            file={cropping}
+            onConfirm={onCropped}
+            onCancel={onCropCancel}
+          />
+        )}
         {uploadError && (
           <p className="mt-2 text-xs text-red-600">{uploadError}</p>
         )}
