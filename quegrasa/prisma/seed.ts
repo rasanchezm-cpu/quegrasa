@@ -56,7 +56,7 @@ async function main() {
     // Pantalones / jeans
     "24", "26", "28", "30", "32", "34", "36", "38",
     // Franelas, chaquetas y monos
-    "S", "M", "L", "XL", "XXL",
+    "XS", "S", "M", "L", "XL", "XXL",
     // Accesorios (gorras etc.)
     "Única",
   ];
