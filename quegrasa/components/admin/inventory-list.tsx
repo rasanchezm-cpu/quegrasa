@@ -11,9 +11,10 @@ import {
   adjustStock,
   updateProductPrices,
   deleteProduct,
+  addVariantToProduct,
 } from "@/lib/actions/products";
 import { formatBs, usdToBs } from "@/lib/money";
-import { X, SearchX, Trash2 } from "lucide-react";
+import { X, SearchX, Trash2, Plus } from "lucide-react";
 
 export type InventoryVariant = {
   id: string;
@@ -35,9 +36,11 @@ export type InventoryProduct = {
 export default function InventoryList({
   products,
   rate,
+  allSizes = [],
 }: {
   products: InventoryProduct[];
   rate: number | null;
+  allSizes?: { id: string; name: string }[];
 }) {
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -50,6 +53,12 @@ export default function InventoryList({
   // hoja de detalle y confirmación de borrado
   const [openId, setOpenId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+
+  // agregar talla/cantidad a una prenda existente
+  const [showAddSize, setShowAddSize] = useState(false);
+  const [addSizeName, setAddSizeName] = useState("");
+  const [addSizeQty, setAddSizeQty] = useState(1);
+  const [addingSize, setAddingSize] = useState(false);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -281,7 +290,10 @@ export default function InventoryList({
               </div>
               <button
                 type="button"
-                onClick={() => setOpenId(null)}
+                onClick={() => {
+                  setOpenId(null);
+                  setShowAddSize(false);
+                }}
                 className="rounded-md p-1.5 text-zinc-400 transition hover:bg-zinc-100"
                 aria-label="Cerrar"
               >
@@ -327,6 +339,144 @@ export default function InventoryList({
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* Agregar talla nueva o más cantidad */}
+            <div className="mt-3">
+              {!showAddSize ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowAddSize(true);
+                    setAddSizeName("");
+                    setAddSizeQty(1);
+                  }}
+                  className="flex items-center gap-1.5 rounded-lg border border-dashed border-zinc-300 px-3 py-2 text-xs font-medium text-zinc-500 transition hover:border-gold hover:text-gold-dark"
+                >
+                  <Plus size={13} strokeWidth={2.5} />
+                  Agregar talla o cantidad
+                </button>
+              ) : (
+                <div className="rounded-lg bg-zinc-50 p-3">
+                  <p className="mb-2 text-[10px] uppercase tracking-wide text-zinc-400">
+                    Toca una talla del listado o escribe una nueva — si la talla ya
+                    existe, suma cantidad
+                  </p>
+                  <div className="mb-2.5 flex flex-wrap gap-1.5">
+                    {allSizes.map((s) => {
+                      const yaEsta = open.variants.some(
+                        (v) => v.sizeName.toLowerCase() === s.name.toLowerCase(),
+                      );
+                      const sel = addSizeName === s.name;
+                      return (
+                        <button
+                          key={s.id}
+                          type="button"
+                          onClick={() => setAddSizeName(s.name)}
+                          className={`rounded-md border px-2.5 py-1.5 text-xs font-semibold transition ${
+                            sel
+                              ? "border-zinc-900 bg-zinc-900 text-white"
+                              : yaEsta
+                                ? "border-zinc-200 bg-white text-zinc-400"
+                                : "border-zinc-300 bg-white text-zinc-700 hover:border-zinc-500"
+                          }`}
+                          title={yaEsta ? `Ya existe — sumará cantidad` : "Talla nueva"}
+                        >
+                          {s.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex items-end gap-2">
+                    <input
+                      value={addSizeName}
+                      onChange={(e) => setAddSizeName(e.target.value)}
+                      placeholder="Otra talla…"
+                      className="w-24 rounded-md border border-zinc-300 bg-white px-2.5 py-2 text-xs outline-none focus:border-zinc-900"
+                    />
+                    <label className="text-[10px] uppercase tracking-wide text-zinc-400">
+                      Cant.
+                      <input
+                        type="number"
+                        min={1}
+                        max={999}
+                        value={addSizeQty}
+                        onChange={(e) => setAddSizeQty(Number(e.target.value) || 1)}
+                        className="ml-1 w-16 rounded-md border border-zinc-300 bg-white px-2 py-2 text-xs tabular-nums text-zinc-900 outline-none focus:border-zinc-900"
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      disabled={addingSize || !addSizeName.trim()}
+                      onClick={() => {
+                        setAddingSize(true);
+                        setError(null);
+                        startTransition(async () => {
+                          const res = await addVariantToProduct(
+                            open.id,
+                            addSizeName,
+                            addSizeQty,
+                          );
+                          setAddingSize(false);
+                          if (!res.ok) {
+                            setError(res.error ?? "No se pudo agregar");
+                            return;
+                          }
+                          // actualizar el estado local
+                          setList((prev) =>
+                            prev.map((p) => {
+                              if (p.id !== open.id) return p;
+                              const existe = p.variants.find(
+                                (v) =>
+                                  v.sizeName.toLowerCase() ===
+                                  addSizeName.trim().toLowerCase(),
+                              );
+                              if (existe) {
+                                return {
+                                  ...p,
+                                  variants: p.variants.map((v) =>
+                                    v.sizeName.toLowerCase() ===
+                                    addSizeName.trim().toLowerCase()
+                                      ? { ...v, stock: v.stock + addSizeQty }
+                                      : v,
+                                  ),
+                                };
+                              }
+                              return {
+                                ...p,
+                                variants: [
+                                  ...p.variants,
+                                  {
+                                    id: `nueva-${Date.now()}`,
+                                    sizeName: addSizeName.trim(),
+                                    stock: addSizeQty,
+                                  },
+                                ],
+                              };
+                            }),
+                          );
+                          setShowAddSize(false);
+                          setFlash(
+                            `Talla ${addSizeName.trim()} actualizada (+${addSizeQty})`,
+                          );
+                          setTimeout(() => setFlash(null), 2500);
+                          router.refresh();
+                        });
+                      }}
+                      className="mb-0.5 rounded-md bg-zinc-900 px-3.5 py-2 text-xs font-bold text-white transition hover:bg-zinc-800 disabled:opacity-40"
+                    >
+                      {addingSize ? "Agregando…" : "Agregar"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowAddSize(false)}
+                      className="mb-0.5 rounded-md border border-zinc-200 px-3 py-2 text-xs font-medium text-zinc-500 transition hover:bg-zinc-100"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Editar precios */}

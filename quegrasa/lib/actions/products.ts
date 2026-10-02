@@ -272,6 +272,56 @@ export async function updateProductPrices(
 }
 
 /**
+ * Agregar una talla a una prenda existente (o sumar cantidad si ya existe).
+ * Decisión del dueño: gestionar tallas desde el inventario.
+ */
+export async function addVariantToProduct(
+  productId: string,
+  sizeName: string,
+  stock: number,
+): Promise<{ ok: boolean; error?: string }> {
+  const session = await requireSession();
+
+  const name = sizeName.trim().slice(0, 10);
+  const qty = Number(stock);
+  if (!name) return { ok: false, error: "Escribe la talla" };
+  if (!Number.isInteger(qty) || qty < 1 || qty > 999) {
+    return { ok: false, error: "Cantidad inválida (1-999)" };
+  }
+
+  const store = await prisma.store.findFirst({ orderBy: { createdAt: "asc" } });
+  if (!store) return { ok: false, error: "No hay tienda configurada" };
+
+  // la prenda debe ser de la tienda
+  const product = await prisma.product.findFirst({
+    where: { id: productId, storeId: store.id },
+  });
+  if (!product) return { ok: false, error: "La prenda no existe" };
+
+  const sizeId = await getOrCreateSizeId(store.id, name);
+
+  const variant = await prisma.productVariant.upsert({
+    where: { productId_sizeId: { productId, sizeId } },
+    update: { stock: { increment: qty } },
+    create: { productId, sizeId, stock: qty },
+  });
+
+  await prisma.stockMovement.create({
+    data: {
+      variantId: variant.id,
+      userId: session.userId,
+      type: "NEW",
+      quantity: qty,
+      note: "Talla agregada desde inventario",
+    },
+  });
+
+  revalidatePath("/admin/inventario");
+  revalidatePath("/");
+  return { ok: true };
+}
+
+/**
  * Eliminar una prenda POR COMPLETO (decisión del dueño, 01-oct-2026):
  * producto, fotos, tallas con su stock, movimientos e ítems de envíos
  * viejos que la referencian. Cascada en BD. Las imágenes de Cloudinary

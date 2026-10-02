@@ -17,7 +17,7 @@ export default async function InventarioPage() {
     );
   }
 
-  const [rows, rateInfo] = await Promise.all([
+  const [rows, rateInfo, allSizes] = await Promise.all([
     prisma.product.findMany({
       where: { storeId: store.id },
       orderBy: { createdAt: "desc" },
@@ -34,6 +34,11 @@ export default async function InventarioPage() {
       },
     }),
     getLatestRate(),
+    prisma.size.findMany({
+      where: { storeId: store.id },
+      orderBy: { sortOrder: "asc" },
+      select: { id: true, name: true },
+    }),
   ]);
 
   // A URL lista para miniatura (Cloudinary transforma y comprime al vuelo)
@@ -69,7 +74,7 @@ export default async function InventarioPage() {
       <p className="mb-6 text-sm text-zinc-500">
         Toca − cuando se vende o daña una pieza, + cuando llega mercancía.
       </p>
-      <InventoryList products={products} rate={rateInfo?.rate ?? null} />
+      <InventoryList products={products} rate={rateInfo?.rate ?? null} allSizes={allSizes} />
     </div>
   );
 }
