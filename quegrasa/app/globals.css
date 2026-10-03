@@ -7,7 +7,7 @@
 
 :root {
   color-scheme: light; /* el panel admin es claro por diseño */
-  --background: #060606;
+  --background: #000000;
   --foreground: #f4efe3;
   --card: #0c0c0c;
   --card-foreground: #f4efe3;

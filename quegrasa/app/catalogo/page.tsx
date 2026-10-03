@@ -34,7 +34,7 @@ export default async function CatalogoPage({
   if (!store) {
     return (
       <div className="min-h-dvh bg-background">
-        <PageTheme color="#060606" />
+        <PageTheme color="#000000" />
         <p className="p-10 text-center text-muted-foreground">
           Catálogo en preparación. Vuelve pronto.
         </p>
@@ -86,7 +86,7 @@ export default async function CatalogoPage({
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      <PageTheme color="#060606" />
+      <PageTheme color="#000000" />
       <PillNav />
 
       <main className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">

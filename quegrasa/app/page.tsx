@@ -49,7 +49,7 @@ export default async function HomeEditorial() {
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      <PageTheme color="#060606" />
+      <PageTheme color="#000000" />
       <PillNav />
 
       <main className="pt-10">

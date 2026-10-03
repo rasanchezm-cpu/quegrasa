@@ -58,7 +58,7 @@ export default async function ProductoPage({
 
   return (
     <div className="min-h-dvh bg-background text-foreground">
-      <PageTheme color="#060606" />
+      <PageTheme color="#000000" />
       <PillNav />
 
       <main className="mx-auto max-w-7xl px-4 pt-14 sm:px-6 lg:px-8">

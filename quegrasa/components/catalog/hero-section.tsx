@@ -21,7 +21,7 @@ export function HeroSection() {
           initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15, duration: 0.6 }}
-          className="relative mb-6 h-52 w-52 overflow-hidden rounded-full shadow-[0_0_80px_rgba(212,175,55,0.25)] ring-2 ring-gold/40 sm:h-64 sm:w-64"
+          className="relative mb-6 h-52 w-52 overflow-hidden rounded-full shadow-[0_0_80px_rgba(212,175,55,0.25)] sm:h-64 sm:w-64"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
