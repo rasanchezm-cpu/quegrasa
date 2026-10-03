@@ -10,18 +10,12 @@ import { ArrowRight, MapPin } from "lucide-react";
 export function HeroSection() {
   return (
     <section className="relative flex min-h-[92svh] w-full items-center justify-center overflow-hidden bg-background">
-      {/* resplandor dorado central sutil */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[70vmin] w-[70vmin] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(212,175,55,0.09)_0%,transparent_65%)]"
-      />
-
       <div className="relative z-10 flex flex-col items-center px-4 text-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.85 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15, duration: 0.6 }}
-          className="relative mb-6 h-52 w-52 overflow-hidden rounded-full shadow-[0_0_80px_rgba(212,175,55,0.25)] sm:h-64 sm:w-64"
+          className="relative mb-6 h-52 w-52 overflow-hidden rounded-full sm:h-64 sm:w-64"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
