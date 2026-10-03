@@ -37,9 +37,10 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="font-heading text-balance text-5xl tracking-[0.12em] text-primary sm:text-6xl md:text-7xl"
+          className="font-heading text-balance text-4xl leading-[1.05] tracking-[0.06em] text-primary sm:text-5xl md:text-6xl"
         >
-          ROPA SIN <span className="text-gold">FILTRO</span>
+          SOLO PARA LOS QUE DISTINGUEN LA{" "}
+          <span className="text-gold">GRASA</span> DEL RESTO
         </motion.p>
 
         <motion.p
